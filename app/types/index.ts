@@ -1,4 +1,6 @@
 export type Tier = 'beginner' | 'amateur' | 'semi-pro' | 'pro';
+export type PlayerStatus = 'measuring' | 'confirmed';
+export type UserRole = 'admin' | 'member';
 
 export const TIER_LABELS: Record<Tier, string> = {
   beginner: '비기너',
@@ -19,8 +21,21 @@ export interface Player {
   name: string;
   score: number; // 1-10
   tier: Tier;
+  status: PlayerStatus; // measuring = 첫 3경기 미만, confirmed = 운영진 확정
+  officialMatchCount: number; // 측정중 해제까지 필요한 경기 수 추적
   position?: string;
   createdAt: string;
+}
+
+export interface EvalRequest {
+  id: string;
+  playerId: string;
+  playerName: string;
+  currentTier: Tier;
+  suggestedTier: Tier;
+  reason?: string;
+  requestedAt: string;
+  status: 'pending' | 'approved' | 'rejected';
 }
 
 export interface Team {
@@ -38,20 +53,14 @@ export interface MatchResult {
   teamB: Team;
   scoreA: number;
   scoreB: number;
-  mannerRatingA: number; // 1-5
-  mannerRatingB: number; // 1-5
+  mannerRatingA: number;
+  mannerRatingB: number;
   notes?: string;
 }
 
-export interface TeamStats {
-  teamId: string;
-  teamName: string;
-  matches: number;
-  wins: number;
-  draws: number;
-  losses: number;
-  goalsFor: number;
-  goalsAgainst: number;
-  skillRating: number;  // 1-10 avg score of players
-  mannerRating: number; // 1-5 avg from match ratings
+// 번개전 전용 — 저장 없이 세션에서만 사용
+export interface QuickPlayer {
+  id: string;
+  name: string;
+  score: number | null; // null = 상관없음 (랜덤 처리)
 }

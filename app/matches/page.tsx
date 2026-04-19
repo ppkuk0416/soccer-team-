@@ -27,7 +27,7 @@ function StarRating({ value, onChange }: { value: number; onChange?: (v: number)
 }
 
 export default function MatchesPage() {
-  const { players, matches, addMatch, removeMatch } = useSoccerStore();
+  const { players, matches, addMatch, removeMatch, incrementMatchCount } = useSoccerStore();
   const [showForm, setShowForm] = useState(false);
 
   // Form state
@@ -69,6 +69,8 @@ export default function MatchesPage() {
       notes: notes.trim() || undefined,
     };
     addMatch(match);
+    const allPlayerIds = [...teams[0].players, ...teams[1].players].map((p) => p.id);
+    incrementMatchCount(allPlayerIds);
     setShowForm(false);
     setSelectedIds(new Set());
     setTeams(null);

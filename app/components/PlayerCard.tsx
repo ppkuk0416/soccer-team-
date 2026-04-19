@@ -12,12 +12,14 @@ export function PlayerCard({ player, selectable, selected, onToggle }: {
   onToggle?: () => void;
 }) {
   const [editing, setEditing] = useState(false);
-  const removePlayer = useSoccerStore((s) => s.removePlayer);
+  const { removePlayer, role } = useSoccerStore();
 
   const scoreColor =
     player.score <= 3 ? 'text-gray-500' :
     player.score <= 5 ? 'text-blue-500' :
     player.score <= 8 ? 'text-purple-500' : 'text-yellow-500';
+
+  const isMeasuring = player.status === 'measuring';
 
   if (editing) {
     return (
@@ -43,7 +45,14 @@ export function PlayerCard({ player, selectable, selected, onToggle }: {
           </div>
         )}
         <div>
-          <div className="font-semibold text-gray-800">{player.name}</div>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-gray-800">{player.name}</span>
+            {isMeasuring && (
+              <span className="text-xs bg-orange-100 text-orange-500 px-1.5 py-0.5 rounded-full font-medium">
+                측정중 {player.officialMatchCount}/3
+              </span>
+            )}
+          </div>
           <div className="flex items-center gap-2 mt-0.5">
             <TierBadge tier={player.tier} />
             {player.position && <span className="text-xs text-gray-400">{player.position}</span>}
@@ -51,8 +60,10 @@ export function PlayerCard({ player, selectable, selected, onToggle }: {
         </div>
       </div>
       <div className="flex items-center gap-3">
-        <span className={`text-2xl font-bold ${scoreColor}`}>{player.score}</span>
-        {!selectable && (
+        <span className={`text-2xl font-bold ${isMeasuring ? 'text-gray-300' : scoreColor}`}>
+          {isMeasuring ? '?' : player.score}
+        </span>
+        {!selectable && role === 'admin' && (
           <div className="flex gap-1">
             <button onClick={() => setEditing(true)} className="p-1.5 text-gray-400 hover:text-blue-500 transition text-sm">✏️</button>
             <button onClick={() => removePlayer(player.id)} className="p-1.5 text-gray-400 hover:text-red-500 transition text-sm">🗑️</button>
