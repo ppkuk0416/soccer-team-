@@ -1,6 +1,7 @@
 export type Tier = 'beginner' | 'amateur' | 'semi-pro' | 'pro';
 export type PlayerStatus = 'measuring' | 'confirmed';
 export type UserRole = 'admin' | 'member';
+export type VoteStatus = 'attending' | 'absent' | 'maybe';
 
 export const TIER_LABELS: Record<Tier, string> = {
   beginner: '비기너',
@@ -16,13 +17,20 @@ export const TIER_SCORE_RANGE: Record<Tier, [number, number]> = {
   pro: [9, 10],
 };
 
+export interface SoccerTeam {
+  id: string;
+  name: string;
+  description?: string;
+  createdAt: string;
+}
+
 export interface Player {
   id: string;
   name: string;
-  score: number; // 1-10
+  score: number;
   tier: Tier;
-  status: PlayerStatus; // measuring = 첫 3경기 미만, confirmed = 운영진 확정
-  officialMatchCount: number; // 측정중 해제까지 필요한 경기 수 추적
+  status: PlayerStatus;
+  officialMatchCount: number;
   position?: string;
   createdAt: string;
 }
@@ -36,6 +44,23 @@ export interface EvalRequest {
   reason?: string;
   requestedAt: string;
   status: 'pending' | 'approved' | 'rejected';
+}
+
+export interface AttendanceVote {
+  playerId: string;
+  playerName: string;
+  status: VoteStatus;
+  votedAt: string;
+}
+
+export interface MatchEvent {
+  id: string;
+  title: string;
+  date: string;       // ISO date string (경기 날짜)
+  location?: string;
+  votes: AttendanceVote[];
+  isOpen: boolean;    // 투표 마감 여부
+  createdAt: string;
 }
 
 export interface Team {
@@ -62,5 +87,5 @@ export interface MatchResult {
 export interface QuickPlayer {
   id: string;
   name: string;
-  score: number | null; // null = 상관없음 (랜덤 처리)
+  score: number | null;
 }
