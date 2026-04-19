@@ -1,40 +1,57 @@
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useSoccerStore } from '../store/useSoccerStore';
-import { VoteStatus, MatchEvent } from '../types';
+import { VoteStatus, MatchEvent, Player } from '../types';
+import { TierBadge } from '../components/TierBadge';
+import { balanceTeams } from '../utils/teamBalancer';
+import { Team } from '../types';
 
-const VOTE_OPTIONS: { status: VoteStatus; label: string; emoji: string; color: string; bg: string }[] = [
-  { status: 'attending', label: '참석', emoji: '✅', color: 'text-green-600', bg: 'bg-green-50 border-green-300' },
-  { status: 'maybe',    label: '미정',  emoji: '🤔', color: 'text-yellow-600', bg: 'bg-yellow-50 border-yellow-300' },
-  { status: 'absent',   label: '불참', emoji: '❌', color: 'text-red-500',   bg: 'bg-red-50 border-red-300' },
+const VOTES: { status: VoteStatus; label: string; color: string; active: string }[] = [
+  { status: 'attending', label: '참석', color: 'text-gray-500 bg-gray-50 border-gray-200', active: 'text-green-700 bg-green-50 border-green-400 font-bold' },
+  { status: 'maybe',    label: '미정',  color: 'text-gray-500 bg-gray-50 border-gray-200', active: 'text-yellow-700 bg-yellow-50 border-yellow-400 font-bold' },
+  { status: 'absent',   label: '불참', color: 'text-gray-500 bg-gray-50 border-gray-200', active: 'text-red-600 bg-red-50 border-red-400 font-bold' },
 ];
 
-function VoteSummary({ event }: { event: MatchEvent }) {
-  const attending = event.votes.filter((v) => v.status === 'attending');
-  const maybe     = event.votes.filter((v) => v.status === 'maybe');
-  const absent    = event.votes.filter((v) => v.status === 'absent');
+function InlineTeamResult({ teams }: { teams: [Team, Team] }) {
+  const diff = Math.abs(teams[0].totalScore - teams[1].totalScore);
   return (
-    <div className="flex gap-3 text-sm">
-      <span className="text-green-600 font-bold">✅ {attending.length}명</span>
-      <span className="text-yellow-500 font-bold">🤔 {maybe.length}명</span>
-      <span className="text-red-400 font-bold">❌ {absent.length}명</span>
+    <div className="mt-3 space-y-2">
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-semibold text-gray-500">팀 구성 결과</span>
+        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${diff <= 1 ? 'bg-green-50 text-green-600' : 'bg-yellow-50 text-yellow-600'}`}>
+          점수 차 {diff}
+        </span>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        {teams.map((team, i) => (
+          <div key={team.id} className={`rounded-xl p-3 border ${i === 0 ? 'border-blue-200 bg-blue-50' : 'border-red-200 bg-red-50'}`}>
+            <div className="flex justify-between items-center mb-2">
+              <span className={`text-xs font-bold ${i === 0 ? 'text-blue-700' : 'text-red-700'}`}>{team.name}</span>
+              <span className="text-xs text-gray-500">{team.totalScore}점</span>
+            </div>
+            {[...team.players].sort((a, b) => b.score - a.score).map((p) => (
+              <div key={p.id} className="flex justify-between items-center text-xs py-0.5">
+                <span className="text-gray-700">{p.name}</span>
+                <span className="text-gray-400 font-medium">{p.status === 'measuring' ? '—' : p.score}</span>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
 export default function AttendPage() {
-  const router = useRouter();
   const { players, events, role, addEvent, removeEvent, vote, closeEvent } = useSoccerStore();
-
   const [showCreate, setShowCreate] = useState(false);
   const [title, setTitle] = useState('');
   const [date, setDate] = useState('');
   const [location, setLocation] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
-
-  // 팀원 선택 — 현재 사용 중인 기기의 선수 (심플하게: 드롭다운으로 본인 선택)
-  const [myPlayerId, setMyPlayerId] = useState<string>('');
+  const [teamResults, setTeamResults] = useState<Record<string, [Team, Team]>>({});
+  const [teamAName, setTeamAName] = useState('A팀');
+  const [teamBName, setTeamBName] = useState('B팀');
 
   function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -44,19 +61,12 @@ export default function AttendPage() {
     setShowCreate(false);
   }
 
-  function handleVote(eventId: string, status: VoteStatus) {
-    if (!myPlayerId) return;
-    const player = players.find((p) => p.id === myPlayerId);
-    if (!player) return;
-    vote(eventId, player.id, player.name, status);
-  }
-
-  function goToMatcher(event: MatchEvent) {
-    const attendingIds = event.votes
-      .filter((v) => v.status === 'attending')
-      .map((v) => v.playerId)
-      .join(',');
-    router.push(`/matcher?preset=${attendingIds}`);
+  function handleBalance(event: MatchEvent) {
+    const attendingIds = event.votes.filter((v) => v.status === 'attending').map((v) => v.playerId);
+    const attendingPlayers = players.filter((p) => attendingIds.includes(p.id));
+    if (attendingPlayers.length < 2) return;
+    const result = balanceTeams(attendingPlayers, teamAName, teamBName);
+    setTeamResults((prev) => ({ ...prev, [event.id]: result }));
   }
 
   const openEvents   = events.filter((e) => e.isOpen);
@@ -64,178 +74,134 @@ export default function AttendPage() {
 
   return (
     <div className="space-y-5">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">출석 투표</h1>
-          <p className="text-gray-500 text-sm mt-1">경기 전 참석 여부를 미리 확인하세요</p>
+          <h1 className="text-xl font-bold text-gray-900">출석 투표</h1>
+          <p className="text-gray-500 text-sm mt-0.5">경기 전 참석 여부를 확인하세요</p>
         </div>
         {role === 'admin' && (
-          <button
-            onClick={() => setShowCreate(!showCreate)}
-            className="bg-green-500 hover:bg-green-600 text-white font-semibold px-3 py-2 rounded-xl transition shadow text-sm"
-          >
-            {showCreate ? '취소' : '+ 일정 만들기'}
+          <button onClick={() => setShowCreate(!showCreate)}
+            className="bg-green-600 hover:bg-green-700 text-white font-semibold px-3 py-2 rounded-xl transition text-sm">
+            {showCreate ? '취소' : '+ 일정'}
           </button>
         )}
       </div>
 
-      {/* Create form */}
       {showCreate && (
-        <form onSubmit={handleCreate} className="bg-white rounded-2xl border border-gray-100 shadow p-4 space-y-3">
-          <h2 className="font-bold text-gray-700 text-sm">새 경기 일정</h2>
-          <input
-            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="제목 (예: 5월 3일 정기전)"
-            required
-          />
-          <input
-            type="datetime-local"
-            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            required
-          />
-          <input
-            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            placeholder="장소 (선택)"
-          />
-          <button
-            type="submit"
-            className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded-xl transition text-sm"
-          >
-            일정 등록
+        <form onSubmit={handleCreate} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 space-y-3">
+          <p className="text-sm font-semibold text-gray-700">새 경기 일정</p>
+          <input className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 text-gray-900"
+            value={title} onChange={(e) => setTitle(e.target.value)} placeholder="제목 (예: 5월 3일 정기전)" required />
+          <input type="datetime-local" step="600"
+            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 text-gray-900"
+            value={date} onChange={(e) => setDate(e.target.value)} required />
+          <input className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 text-gray-900"
+            value={location} onChange={(e) => setLocation(e.target.value)} placeholder="장소 (선택)" />
+          <button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-xl transition text-sm">
+            등록
           </button>
         </form>
       )}
 
-      {/* 내 선수 선택 */}
-      {players.length > 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
-          <label className="block text-xs font-semibold text-blue-600 mb-1.5">내 선수 선택 (투표용)</label>
-          <select
-            className="w-full bg-white border border-blue-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-            value={myPlayerId}
-            onChange={(e) => setMyPlayerId(e.target.value)}
-          >
-            <option value="">선택...</option>
-            {players.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      {/* Open events */}
       {openEvents.length === 0 && !showCreate && (
-        <div className="text-center py-12 text-gray-400">
-          <div className="text-4xl mb-2">📅</div>
-          <p className="text-sm">예정된 경기 일정이 없습니다</p>
-          {role !== 'admin' && <p className="text-xs mt-1">운영진이 일정을 등록하면 여기 표시됩니다</p>}
+        <div className="text-center py-16">
+          <p className="text-3xl mb-3">📅</p>
+          <p className="text-gray-500 text-sm">예정된 경기 일정이 없습니다</p>
+          {role !== 'admin' && <p className="text-gray-400 text-xs mt-1">운영진이 일정을 등록하면 표시됩니다</p>}
         </div>
       )}
 
       <div className="space-y-4">
         {openEvents.map((event) => {
-          const myVote = event.votes.find((v) => v.playerId === myPlayerId);
           const attending = event.votes.filter((v) => v.status === 'attending');
           const isExpanded = expandedId === event.id;
           const eventDate = new Date(event.date);
+          const voteMap = new Map(event.votes.map((v) => [v.playerId, v.status]));
+          const unvoted = players.filter((p) => !voteMap.has(p.id));
 
           return (
-            <div key={event.id} className="bg-white rounded-2xl shadow border border-gray-100 overflow-hidden">
-              {/* Event header */}
+            <div key={event.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="p-4">
-                <div className="flex justify-between items-start mb-1">
+                <div className="flex justify-between items-start mb-3">
                   <div>
-                    <h3 className="font-bold text-gray-800">{event.title}</h3>
+                    <h3 className="font-bold text-gray-900">{event.title}</h3>
                     <p className="text-xs text-gray-400 mt-0.5">
-                      {eventDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })}
-                      {' '}
+                      {eventDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })}{' '}
                       {eventDate.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}
-                      {event.location && ` · ${event.location}`}
+                      {event.location && <span> · {event.location}</span>}
                     </p>
                   </div>
                   {role === 'admin' && (
-                    <div className="flex gap-1">
-                      <button
-                        onClick={() => removeEvent(event.id)}
-                        className="text-gray-300 hover:text-red-400 text-sm transition"
-                      >✕</button>
-                    </div>
+                    <button onClick={() => removeEvent(event.id)} className="text-gray-300 hover:text-red-400 transition p-1">✕</button>
                   )}
                 </div>
 
-                <VoteSummary event={event} />
-
-                {/* Vote buttons */}
-                {myPlayerId && (
-                  <div className="flex gap-2 mt-3">
-                    {VOTE_OPTIONS.map(({ status, label, emoji, bg }) => (
-                      <button
-                        key={status}
-                        onClick={() => handleVote(event.id, status)}
-                        className={`flex-1 flex flex-col items-center py-2 rounded-xl border-2 transition font-medium text-xs
-                          ${myVote?.status === status ? bg + ' scale-105' : 'border-gray-100 bg-gray-50 text-gray-500 hover:border-gray-200'}`}
-                      >
-                        <span className="text-lg">{emoji}</span>
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {!myPlayerId && (
-                  <p className="text-xs text-gray-400 mt-3">위에서 내 선수를 선택하면 투표할 수 있습니다</p>
-                )}
+                {/* Vote summary chips */}
+                <div className="flex gap-2 text-xs">
+                  <span className="bg-green-50 text-green-700 font-semibold px-2.5 py-1 rounded-full">✅ {attending.length}</span>
+                  <span className="bg-yellow-50 text-yellow-700 font-semibold px-2.5 py-1 rounded-full">🤔 {event.votes.filter(v=>v.status==='maybe').length}</span>
+                  <span className="bg-red-50 text-red-600 font-semibold px-2.5 py-1 rounded-full">❌ {event.votes.filter(v=>v.status==='absent').length}</span>
+                  <span className="bg-gray-50 text-gray-500 font-semibold px-2.5 py-1 rounded-full">미투표 {unvoted.length}</span>
+                </div>
               </div>
 
-              {/* Attendee list toggle */}
-              <button
-                onClick={() => setExpandedId(isExpanded ? null : event.id)}
-                className="w-full text-xs text-gray-400 hover:text-gray-600 py-2 border-t border-gray-50 transition"
-              >
-                {isExpanded ? '▲ 접기' : `▼ 참석자 보기 (${event.votes.length}명 응답)`}
+              {/* Expand toggle */}
+              <button onClick={() => setExpandedId(isExpanded ? null : event.id)}
+                className="w-full text-xs text-gray-400 hover:text-gray-600 py-2.5 border-t border-gray-50 transition bg-gray-50/50">
+                {isExpanded ? '▲ 접기' : '▼ 투표하기 / 명단 보기'}
               </button>
 
               {isExpanded && (
-                <div className="px-4 pb-4 space-y-1">
-                  {VOTE_OPTIONS.map(({ status, label, emoji }) => {
-                    const group = event.votes.filter((v) => v.status === status);
-                    if (group.length === 0) return null;
-                    return (
-                      <div key={status}>
-                        <p className="text-xs text-gray-400 mt-2 mb-1">{emoji} {label} ({group.length})</p>
-                        <div className="flex flex-wrap gap-1">
-                          {group.map((v) => (
-                            <span key={v.playerId} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
-                              {v.playerName}
-                            </span>
-                          ))}
+                <div className="px-4 pb-4 pt-3 space-y-2">
+                  {/* All players vote list */}
+                  {players.length === 0 ? (
+                    <p className="text-xs text-gray-400 py-2">팀 탭에서 선수를 먼저 등록해주세요</p>
+                  ) : (
+                    [...players].sort((a, b) => a.name.localeCompare(b.name)).map((p) => {
+                      const myVote = voteMap.get(p.id);
+                      return (
+                        <div key={p.id} className="flex items-center justify-between gap-2 py-1.5 border-b border-gray-50 last:border-0">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="text-sm font-medium text-gray-900 truncate">{p.name}</span>
+                            <TierBadge tier={p.tier} status={p.status} />
+                          </div>
+                          <div className="flex gap-1 flex-shrink-0">
+                            {VOTES.map(({ status, label, color, active }) => (
+                              <button key={status}
+                                onClick={() => vote(event.id, p.id, p.name, status)}
+                                className={`text-xs px-2.5 py-1 rounded-lg border transition ${myVote === status ? active : color}`}>
+                                {label}
+                              </button>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })
+                  )}
 
-                  {/* 참석자로 팀 매칭 */}
-                  {attending.length >= 2 && role === 'admin' && (
-                    <div className="pt-3 border-t border-gray-100 space-y-2">
-                      <button
-                        onClick={() => goToMatcher(event)}
-                        className="w-full bg-green-500 hover:bg-green-600 text-white text-sm font-semibold py-2 rounded-xl transition"
-                      >
-                        ⚡ 참석자 {attending.length}명으로 팀 매칭
+                  {/* Team balance */}
+                  {attending.length >= 2 && (
+                    <div className="pt-3 border-t border-gray-100 space-y-3">
+                      <div className="flex gap-2">
+                        <input className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-green-400"
+                          value={teamAName} onChange={(e) => setTeamAName(e.target.value)} />
+                        <span className="self-center text-gray-300 text-xs">vs</span>
+                        <input className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-green-400"
+                          value={teamBName} onChange={(e) => setTeamBName(e.target.value)} />
+                      </div>
+                      <button onClick={() => handleBalance(event)}
+                        className="w-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-2.5 rounded-xl transition">
+                        ⚡ 참석자 {attending.length}명 팀 나누기
                       </button>
-                      <button
-                        onClick={() => closeEvent(event.id)}
-                        className="w-full bg-gray-100 hover:bg-gray-200 text-gray-500 text-sm py-2 rounded-xl transition"
-                      >
-                        투표 마감
-                      </button>
+                      {teamResults[event.id] && <InlineTeamResult teams={teamResults[event.id]} />}
                     </div>
+                  )}
+
+                  {role === 'admin' && (
+                    <button onClick={() => closeEvent(event.id)}
+                      className="w-full text-xs text-gray-400 hover:text-gray-600 py-2 border border-gray-100 rounded-xl transition mt-1">
+                      투표 마감
+                    </button>
                   )}
                 </div>
               )}
@@ -244,23 +210,20 @@ export default function AttendPage() {
         })}
       </div>
 
-      {/* Closed events */}
       {closedEvents.length > 0 && (
         <div>
-          <p className="text-xs text-gray-400 font-medium mb-2">마감된 일정</p>
+          <p className="text-xs font-semibold text-gray-400 mb-2">마감된 일정</p>
           <div className="space-y-2">
             {closedEvents.map((event) => (
-              <div key={event.id} className="bg-gray-50 rounded-xl px-4 py-3 flex justify-between items-center opacity-60">
+              <div key={event.id} className="bg-gray-50 rounded-xl px-4 py-3 flex justify-between items-center">
                 <div>
                   <span className="text-sm font-medium text-gray-600">{event.title}</span>
-                  <p className="text-xs text-gray-400">
-                    {new Date(event.date).toLocaleDateString('ko-KR')}
-                  </p>
+                  <p className="text-xs text-gray-400">{new Date(event.date).toLocaleDateString('ko-KR')}</p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <VoteSummary event={event} />
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-green-600 font-semibold">✅ {event.votes.filter(v=>v.status==='attending').length}</span>
                   {role === 'admin' && (
-                    <button onClick={() => removeEvent(event.id)} className="text-gray-300 hover:text-red-400 text-sm ml-1">✕</button>
+                    <button onClick={() => removeEvent(event.id)} className="text-gray-300 hover:text-red-400 ml-1">✕</button>
                   )}
                 </div>
               </div>

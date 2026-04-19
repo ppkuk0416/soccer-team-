@@ -1,13 +1,12 @@
 'use client';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Player, EvalRequest, MatchResult, Tier, UserRole, SoccerTeam, MatchEvent, AttendanceVote, VoteStatus } from '../types';
+import { Player, EvalRequest, Tier, UserRole, SoccerTeam, MatchEvent, VoteStatus, SCORE_TO_TIER, TIER_TO_SCORE } from '../types';
 
 interface SoccerStore {
   role: UserRole;
   team: SoccerTeam | null;
   players: Player[];
-  matches: MatchResult[];
   evalRequests: EvalRequest[];
   events: MatchEvent[];
 
@@ -18,8 +17,6 @@ interface SoccerStore {
   removePlayer: (id: string) => void;
   confirmTier: (playerId: string, score: number) => void;
   incrementMatchCount: (playerIds: string[]) => void;
-  addMatch: (match: MatchResult) => void;
-  removeMatch: (id: string) => void;
   submitEvalRequest: (req: Omit<EvalRequest, 'id' | 'requestedAt' | 'status'>) => void;
   resolveEvalRequest: (reqId: string, approved: boolean) => void;
   addEvent: (title: string, date: string, location?: string) => void;
@@ -29,10 +26,8 @@ interface SoccerStore {
 }
 
 function scoreToTier(score: number): Tier {
-  if (score <= 3) return 'beginner';
-  if (score <= 5) return 'amateur';
-  if (score <= 8) return 'semi-pro';
-  return 'pro';
+  const s = Math.min(10, Math.max(1, Math.round(score)));
+  return SCORE_TO_TIER[s] ?? 'beginner-1';
 }
 
 function genId() {
@@ -45,7 +40,6 @@ export const useSoccerStore = create<SoccerStore>()(
       role: 'member',
       team: null,
       players: [],
-      matches: [],
       evalRequests: [],
       events: [],
 
@@ -63,9 +57,7 @@ export const useSoccerStore = create<SoccerStore>()(
           players: [
             ...s.players,
             {
-              id: genId(),
-              name,
-              score,
+              id: genId(), name, score,
               tier: scoreToTier(score),
               status: 'measuring',
               officialMatchCount: 0,
@@ -90,25 +82,16 @@ export const useSoccerStore = create<SoccerStore>()(
       confirmTier: (playerId, score) =>
         set((s) => ({
           players: s.players.map((p) =>
-            p.id !== playerId
-              ? p
-              : { ...p, score, tier: scoreToTier(score), status: 'confirmed' }
+            p.id !== playerId ? p : { ...p, score, tier: scoreToTier(score), status: 'confirmed' }
           ),
         })),
 
       incrementMatchCount: (playerIds) =>
         set((s) => ({
-          players: s.players.map((p) => {
-            if (!playerIds.includes(p.id)) return p;
-            return { ...p, officialMatchCount: p.officialMatchCount + 1 };
-          }),
+          players: s.players.map((p) =>
+            playerIds.includes(p.id) ? { ...p, officialMatchCount: p.officialMatchCount + 1 } : p
+          ),
         })),
-
-      addMatch: (match) =>
-        set((s) => ({ matches: [match, ...s.matches] })),
-
-      removeMatch: (id) =>
-        set((s) => ({ matches: s.matches.filter((m) => m.id !== id) })),
 
       submitEvalRequest: (req) =>
         set((s) => ({
@@ -126,29 +109,18 @@ export const useSoccerStore = create<SoccerStore>()(
             r.id === reqId ? { ...r, status: approved ? 'approved' : 'rejected' } as EvalRequest : r
           );
           if (!approved) return { evalRequests: updatedRequests };
-          const tierScoreMap: Record<Tier, number> = {
-            beginner: 2, amateur: 5, 'semi-pro': 7, pro: 10,
-          };
-          const updatedPlayers = s.players.map((p) => {
-            if (p.id !== req.playerId) return p;
-            const newScore = tierScoreMap[req.suggestedTier];
-            return { ...p, score: newScore, tier: req.suggestedTier, status: 'confirmed' as const };
-          });
+          const newScore = TIER_TO_SCORE[req.suggestedTier];
+          const updatedPlayers = s.players.map((p) =>
+            p.id !== req.playerId ? p
+              : { ...p, score: newScore, tier: req.suggestedTier, status: 'confirmed' as const }
+          );
           return { evalRequests: updatedRequests, players: updatedPlayers };
         }),
 
       addEvent: (title, date, location) =>
         set((s) => ({
           events: [
-            {
-              id: genId(),
-              title,
-              date,
-              location,
-              votes: [],
-              isOpen: true,
-              createdAt: new Date().toISOString(),
-            },
+            { id: genId(), title, date, location, votes: [], isOpen: true, createdAt: new Date().toISOString() },
             ...s.events,
           ],
         })),
@@ -161,11 +133,7 @@ export const useSoccerStore = create<SoccerStore>()(
           events: s.events.map((e) => {
             if (e.id !== eventId) return e;
             const filtered = e.votes.filter((v) => v.playerId !== playerId);
-            const newVote: AttendanceVote = {
-              playerId, playerName, status,
-              votedAt: new Date().toISOString(),
-            };
-            return { ...e, votes: [...filtered, newVote] };
+            return { ...e, votes: [...filtered, { playerId, playerName, status, votedAt: new Date().toISOString() }] };
           }),
         })),
 

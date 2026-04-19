@@ -14,16 +14,9 @@ export function PlayerCard({ player, selectable, selected, onToggle }: {
   const [editing, setEditing] = useState(false);
   const { removePlayer, role } = useSoccerStore();
 
-  const scoreColor =
-    player.score <= 3 ? 'text-gray-500' :
-    player.score <= 5 ? 'text-blue-500' :
-    player.score <= 8 ? 'text-purple-500' : 'text-yellow-500';
-
-  const isMeasuring = player.status === 'measuring';
-
   if (editing) {
     return (
-      <div className="bg-white rounded-xl p-4 shadow border border-green-200">
+      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
         <PlayerForm editPlayer={player} onClose={() => setEditing(false)} />
       </div>
     );
@@ -32,41 +25,41 @@ export function PlayerCard({ player, selectable, selected, onToggle }: {
   return (
     <div
       onClick={selectable ? onToggle : undefined}
-      className={`bg-white rounded-xl px-4 py-3 shadow flex items-center justify-between gap-3 border transition
-        ${selectable ? 'cursor-pointer' : ''}
-        ${selected ? 'border-green-400 bg-green-50' : 'border-gray-100 hover:border-gray-200'}
+      className={`bg-white rounded-2xl px-4 py-3 shadow-sm flex items-center justify-between gap-3 border transition
+        ${selectable ? 'cursor-pointer select-none' : ''}
+        ${selected ? 'border-green-400 bg-green-50' : 'border-gray-100'}
       `}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 min-w-0">
         {selectable && (
-          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0
+          <div className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center
             ${selected ? 'border-green-500 bg-green-500' : 'border-gray-300'}`}>
-            {selected && <span className="text-white text-xs">✓</span>}
+            {selected && <span className="text-white text-[10px] font-bold">✓</span>}
           </div>
         )}
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-gray-800">{player.name}</span>
-            {isMeasuring && (
-              <span className="text-xs bg-orange-100 text-orange-500 px-1.5 py-0.5 rounded-full font-medium">
-                측정중 {player.officialMatchCount}/3
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-2 mt-0.5">
-            <TierBadge tier={player.tier} />
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-semibold text-gray-900 text-sm">{player.name}</span>
             {player.position && <span className="text-xs text-gray-400">{player.position}</span>}
+          </div>
+          <div className="mt-0.5">
+            <TierBadge tier={player.tier} status={player.status} />
           </div>
         </div>
       </div>
-      <div className="flex items-center gap-3">
-        <span className={`text-2xl font-bold ${isMeasuring ? 'text-gray-300' : scoreColor}`}>
-          {isMeasuring ? '?' : player.score}
+
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <span className={`text-xl font-black tabular-nums ${player.status === 'measuring' ? 'text-gray-200' : 'text-gray-700'}`}>
+          {player.status === 'measuring' ? '—' : player.score}
         </span>
         {!selectable && role === 'admin' && (
-          <div className="flex gap-1">
-            <button onClick={() => setEditing(true)} className="p-1.5 text-gray-400 hover:text-blue-500 transition text-sm">✏️</button>
-            <button onClick={() => removePlayer(player.id)} className="p-1.5 text-gray-400 hover:text-red-500 transition text-sm">🗑️</button>
+          <div className="flex gap-0.5">
+            <button onClick={() => setEditing(true)} className="p-1.5 text-gray-300 hover:text-gray-600 transition rounded-lg hover:bg-gray-50">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+            </button>
+            <button onClick={() => removePlayer(player.id)} className="p-1.5 text-gray-300 hover:text-red-400 transition rounded-lg hover:bg-red-50">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+            </button>
           </div>
         )}
       </div>

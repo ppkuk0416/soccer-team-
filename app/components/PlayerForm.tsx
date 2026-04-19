@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useSoccerStore } from '../store/useSoccerStore';
-import { Player } from '../types';
+import { Player, SCORE_TO_TIER, TIER_LABELS } from '../types';
 
 interface Props {
   editPlayer?: Player;
@@ -25,45 +25,47 @@ export function PlayerForm({ editPlayer, onClose }: Props) {
     onClose();
   }
 
+  const tier = SCORE_TO_TIER[score];
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">이름</label>
+        <label className="block text-xs font-semibold text-gray-600 mb-1.5">이름</label>
         <input
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="선수 이름"
-          required
+          className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400"
+          value={name} onChange={(e) => setName(e.target.value)}
+          placeholder="선수 이름" required
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          실력 점수: <span className="text-green-600 font-bold">{score}점</span>
-        </label>
+        <div className="flex justify-between items-center mb-1.5">
+          <label className="text-xs font-semibold text-gray-600">실력 점수</label>
+          <span className="text-sm font-black text-gray-900">{score}점 · {tier ? TIER_LABELS[tier] : ''}</span>
+        </div>
         <input
           type="range" min={1} max={10} value={score}
           onChange={(e) => setScore(Number(e.target.value))}
           className="w-full accent-green-500"
         />
-        <div className="flex justify-between text-xs text-gray-400 mt-1">
-          <span>1 (비기너)</span><span>5 (아마추어)</span><span>8 (세미프로)</span><span>10 (프로)</span>
+        <div className="flex justify-between text-[10px] text-gray-400 mt-1">
+          <span>1 비기너1</span>
+          <span>5 아마추어2</span>
+          <span>10 프로</span>
         </div>
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">포지션 (선택)</label>
+        <label className="block text-xs font-semibold text-gray-600 mb-1.5">포지션 (선택)</label>
         <input
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
-          value={position}
-          onChange={(e) => setPosition(e.target.value)}
+          className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400"
+          value={position} onChange={(e) => setPosition(e.target.value)}
           placeholder="FW, MF, DF, GK"
         />
       </div>
-      <div className="flex gap-2 pt-2">
-        <button type="submit" className="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded-lg transition">
+      <div className="flex gap-2 pt-1">
+        <button type="submit" className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 rounded-xl transition text-sm">
           {editPlayer ? '수정' : '추가'}
         </button>
-        <button type="button" onClick={onClose} className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 rounded-lg transition">
+        <button type="button" onClick={onClose} className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl transition text-sm">
           취소
         </button>
       </div>
