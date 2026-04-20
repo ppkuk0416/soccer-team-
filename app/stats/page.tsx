@@ -1,5 +1,5 @@
 'use client';
-import { useSoccerStore } from '../store/useSoccerStore';
+import { useSoccerStore } from '../store/useSupabaseStore';
 import { TIER_LABELS, Tier } from '../types';
 import { TierBadge } from '../components/TierBadge';
 

@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { useSoccerStore } from '../store/useSoccerStore';
+import { useSoccerStore } from '../store/useSupabaseStore';
 import { Player, SCORE_TO_TIER, TIER_LABELS } from '../types';
 
 interface Props {

@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { useSoccerStore } from '../store/useSoccerStore';
+import { useSoccerStore } from '../store/useSupabaseStore';
 import { VoteStatus, MatchEvent, Player } from '../types';
 import { TierBadge } from '../components/TierBadge';
 import { balanceTeams } from '../utils/teamBalancer';

@@ -2,7 +2,7 @@
 import { create } from 'zustand';
 import { createClient } from '../lib/supabase';
 import * as db from '../lib/db';
-import { Player, MatchEvent, MatchRecord, Lineup, EvalRequest, Tier, VoteStatus, LineupSlot } from '../types';
+import { Player, MatchEvent, MatchRecord, Lineup, EvalRequest, Tier, VoteStatus, LineupSlot, AppNotification } from '../types';
 
 interface SupabaseStore {
   // Data
@@ -16,13 +16,24 @@ interface SupabaseStore {
   lineups: Lineup[];
   evalRequests: EvalRequest[];
 
+  // Notifications (local only for now)
+  notifications: AppNotification[];
+  markAllRead: () => void;
+  addNotification: (n: Omit<AppNotification, 'id' | 'createdAt' | 'read'>) => void;
+
   // State
   loading: boolean;
   initialized: boolean;
 
+  // Compat: team object for existing pages
+  team: { id: string; name: string; description?: string; inviteCode: string; createdAt: string } | null;
+
   // Init
   init: () => Promise<void>;
   refresh: () => Promise<void>;
+
+  // Role (local override for dev; in prod comes from profile)
+  setRole: (role: 'admin' | 'member') => void;
 
   // Team
   setTeam: (name: string, description?: string) => Promise<void>;
@@ -131,8 +142,17 @@ export const useSupabaseStore = create<SupabaseStore>((set, get) => ({
   matchRecords: [],
   lineups: [],
   evalRequests: [],
+  team: null,
+  notifications: [],
   loading: false,
   initialized: false,
+
+  setRole: (role) => set({ role }),
+
+  markAllRead: () => set((s) => ({ notifications: s.notifications.map((n) => ({ ...n, read: true })) })),
+  addNotification: (n) => set((s) => ({
+    notifications: [{ ...n, id: Date.now().toString(36), createdAt: new Date().toISOString(), read: false }, ...s.notifications],
+  })),
 
   init: async () => {
     set({ loading: true });
@@ -150,10 +170,13 @@ export const useSupabaseStore = create<SupabaseStore>((set, get) => ({
         db.getEvalRequests(teamId),
       ]);
 
+      const teamName = team?.name as string ?? '';
+      const inviteCode = team?.invite_code as string ?? '';
       set({
         teamId,
-        teamName: team?.name as string ?? null,
-        teamInviteCode: team?.invite_code as string ?? null,
+        teamName,
+        teamInviteCode: inviteCode,
+        team: teamName ? { id: teamId, name: teamName, inviteCode, createdAt: team?.created_at as string ?? '' } : null,
         role: profile.role as 'admin' | 'member',
         players: (players ?? []).map(mapPlayer),
         events: (events ?? []).map(mapEvent),
@@ -193,10 +216,10 @@ export const useSupabaseStore = create<SupabaseStore>((set, get) => ({
   },
 
   setTeam: async (name, description) => {
-    const { teamId } = get();
+    const { teamId, teamInviteCode } = get();
     if (!teamId) return;
     await db.updateTeam(teamId, name, description);
-    set({ teamName: name });
+    set({ teamName: name, team: { id: teamId, name, description, inviteCode: teamInviteCode ?? '', createdAt: '' } });
   },
 
   addPlayer: async (name, score, position) => {
@@ -309,3 +332,6 @@ export const useSupabaseStore = create<SupabaseStore>((set, get) => ({
     set({ evalRequests: (data ?? []).map(mapEvalRequest) });
   },
 }));
+
+// Alias for backward compatibility with existing page components
+export const useSoccerStore = useSupabaseStore;

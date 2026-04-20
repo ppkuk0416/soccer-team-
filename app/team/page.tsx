@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { useSoccerStore } from '../store/useSoccerStore';
+import { useSoccerStore } from '../store/useSupabaseStore';
 import { PlayerForm } from '../components/PlayerForm';
 import { Modal } from '../components/Modal';
 import { TierBadge } from '../components/TierBadge';

@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { useSoccerStore } from '../store/useSoccerStore';
+import { useSoccerStore } from '../store/useSupabaseStore';
 import { Tier, TIER_LABELS, ALL_TIERS, TIER_TO_SCORE } from '../types';
 import { TierBadge } from '../components/TierBadge';
 

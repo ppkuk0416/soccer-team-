@@ -1,7 +1,7 @@
 'use client';
 import { use, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSoccerStore } from '../../store/useSoccerStore';
+import { useSoccerStore } from '../../store/useSupabaseStore';
 import { FORMATIONS, LineupSlot, Position, POSITION_LABELS } from '../../types';
 import { TierBadge } from '../../components/TierBadge';
 

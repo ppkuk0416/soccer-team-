@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useSoccerStore } from '../store/useSoccerStore';
+import { useSoccerStore } from '../store/useSupabaseStore';
 import { QuickPlayer, Tier, TIER_LABELS, ALL_TIERS, TIER_TO_SCORE } from '../types';
 import { TierBadge } from '../components/TierBadge';
 import { balanceTeams } from '../utils/teamBalancer';

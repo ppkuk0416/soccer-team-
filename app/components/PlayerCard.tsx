@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Player } from '../types';
 import { TierBadge } from './TierBadge';
 import { PlayerForm } from './PlayerForm';
-import { useSoccerStore } from '../store/useSoccerStore';
+import { useSoccerStore } from '../store/useSupabaseStore';
 
 export function PlayerCard({ player, selectable, selected, onToggle }: {
   player: Player;

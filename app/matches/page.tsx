@@ -1,6 +1,6 @@
 'use client';
 import { useState, useRef } from 'react';
-import { useSoccerStore } from '../store/useSoccerStore';
+import { useSoccerStore } from '../store/useSupabaseStore';
 import { MatchRecord } from '../types';
 
 function getMvpResult(votes: MatchRecord['mvpVotes']) {
