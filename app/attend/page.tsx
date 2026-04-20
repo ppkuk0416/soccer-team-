@@ -95,7 +95,15 @@ export default function AttendPage() {
             value={title} onChange={(e) => setTitle(e.target.value)} placeholder="제목 (예: 5월 3일 정기전)" required />
           <input type="datetime-local" step="600"
             className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 text-gray-900"
-            value={date} onChange={(e) => setDate(e.target.value)} required />
+            value={date} onChange={(e) => {
+              const d = new Date(e.target.value);
+              if (!isNaN(d.getTime())) {
+                d.setMinutes(Math.round(d.getMinutes() / 10) * 10, 0, 0);
+                setDate(d.toISOString().slice(0, 16));
+              } else {
+                setDate(e.target.value);
+              }
+            }} required />
           <input className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 text-gray-900"
             value={location} onChange={(e) => setLocation(e.target.value)} placeholder="장소 (선택)" />
           <button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-xl transition text-sm">
