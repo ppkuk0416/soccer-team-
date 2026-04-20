@@ -7,7 +7,7 @@ const NAV = [
   { href: '/team',    label: '팀',   icon: '⚽' },
   { href: '/attend',  label: '출석', icon: '📅' },
   { href: '/matcher', label: '매칭', icon: '🔀' },
-  { href: '/stats',   label: '통계', icon: '📊' },
+  { href: '/matches', label: '기록', icon: '📋' },
   { href: '/admin',   label: '평가', icon: '🛡️' },
 ];
 

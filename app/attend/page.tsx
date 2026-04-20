@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
 import { useSoccerStore } from '../store/useSoccerStore';
 import { VoteStatus, MatchEvent, Player } from '../types';
 import { TierBadge } from '../components/TierBadge';
@@ -198,10 +199,16 @@ export default function AttendPage() {
                   )}
 
                   {role === 'admin' && (
-                    <button onClick={() => closeEvent(event.id)}
-                      className="w-full text-xs text-gray-400 hover:text-gray-600 py-2 border border-gray-100 rounded-xl transition mt-1">
-                      투표 마감
-                    </button>
+                    <div className="flex gap-2 mt-1">
+                      <Link href={`/lineup/${event.id}`}
+                        className="flex-1 text-xs text-green-600 font-semibold hover:bg-green-50 py-2 border border-green-200 rounded-xl transition text-center">
+                        🗒️ 라인업 설정
+                      </Link>
+                      <button onClick={() => closeEvent(event.id)}
+                        className="flex-1 text-xs text-gray-400 hover:text-gray-600 py-2 border border-gray-100 rounded-xl transition">
+                        투표 마감
+                      </button>
+                    </div>
                   )}
                 </div>
               )}
