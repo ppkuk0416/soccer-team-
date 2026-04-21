@@ -164,3 +164,33 @@ export interface QuickPlayer {
   name: string;
   score: number | null;
 }
+
+export interface Due {
+  id: string;
+  playerId: string | null;
+  playerName: string;
+  month: string; // 'YYYY-MM'
+  amount: number;
+  paid: boolean;
+  paidAt?: string;
+  notes?: string;
+}
+
+export interface TeamChallenge {
+  id: string;
+  requesterTeamId: string;
+  requesterTeamName: string;
+  targetTeamId: string;
+  targetTeamName: string;
+  proposedDate?: string;
+  location?: string;
+  message?: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  createdAt: string;
+}
+
+export interface TeamSearchResult {
+  id: string;
+  name: string;
+  createdAt: string;
+}

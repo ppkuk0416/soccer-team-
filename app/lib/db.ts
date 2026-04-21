@@ -277,6 +277,88 @@ export async function resolveEvalRequest(reqId: string, approved: boolean) {
   if (error) throw error;
 }
 
+// ── Dues ─────────────────────────────────────────────────────────
+
+export async function getDues(teamId: string) {
+  const sb = createClient();
+  const { data, error } = await sb
+    .from('dues')
+    .select('*')
+    .eq('team_id', teamId)
+    .order('month', { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
+export async function addDue(teamId: string, playerId: string | null, playerName: string, month: string, amount: number) {
+  const sb = createClient();
+  const { error } = await sb.from('dues').insert({ team_id: teamId, player_id: playerId, player_name: playerName, month, amount });
+  if (error) throw error;
+}
+
+export async function markDuePaid(dueId: string, paid: boolean) {
+  const sb = createClient();
+  const { error } = await sb.from('dues')
+    .update({ paid, paid_at: paid ? new Date().toISOString() : null })
+    .eq('id', dueId);
+  if (error) throw error;
+}
+
+export async function removeDue(dueId: string) {
+  const sb = createClient();
+  const { error } = await sb.from('dues').delete().eq('id', dueId);
+  if (error) throw error;
+}
+
+export async function initMonthlyDues(teamId: string, month: string, amount: number, playerEntries: { id: string | null; name: string }[]) {
+  const sb = createClient();
+  const records = playerEntries.map((p) => ({
+    team_id: teamId, player_id: p.id, player_name: p.name, month, amount, paid: false,
+  }));
+  const { error } = await sb.from('dues').upsert(records, { onConflict: 'team_id,player_id,month', ignoreDuplicates: true });
+  if (error) throw error;
+}
+
+// ── Team Challenges ───────────────────────────────────────────────
+
+export async function searchTeams(query: string) {
+  const sb = createClient();
+  const { data, error } = await sb
+    .from('teams')
+    .select('id, name, created_at')
+    .ilike('name', `%${query}%`)
+    .limit(10);
+  if (error) throw error;
+  return data;
+}
+
+export async function sendChallenge(myTeamId: string, myTeamName: string, targetTeamId: string, targetTeamName: string, proposedDate?: string, location?: string, message?: string) {
+  const sb = createClient();
+  const { error } = await sb.from('team_challenges').insert({
+    requester_team_id: myTeamId, requester_team_name: myTeamName,
+    target_team_id: targetTeamId, target_team_name: targetTeamName,
+    proposed_date: proposedDate || null, location: location || null, message: message || null,
+  });
+  if (error) throw error;
+}
+
+export async function getChallenges(teamId: string) {
+  const sb = createClient();
+  const { data, error } = await sb
+    .from('team_challenges')
+    .select('*')
+    .or(`requester_team_id.eq.${teamId},target_team_id.eq.${teamId}`)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
+export async function respondChallenge(challengeId: string, status: 'accepted' | 'rejected') {
+  const sb = createClient();
+  const { error } = await sb.from('team_challenges').update({ status }).eq('id', challengeId);
+  if (error) throw error;
+}
+
 // ── Helpers ──────────────────────────────────────────────────────
 
 function scoreToTier(score: number): Tier {

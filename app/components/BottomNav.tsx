@@ -4,19 +4,19 @@ import { usePathname } from 'next/navigation';
 import { useSoccerStore } from '../store/useSupabaseStore';
 
 const NAV = [
-  { href: '/team',    label: '팀',   icon: '⚽' },
-  { href: '/attend',  label: '출석', icon: '📅' },
-  { href: '/matcher', label: '매칭', icon: '🔀' },
-  { href: '/matches', label: '기록', icon: '📋' },
-  { href: '/admin',   label: '평가', icon: '🛡️' },
+  { href: '/team',      label: '팀',   icon: '⚽' },
+  { href: '/attend',    label: '출석', icon: '📅' },
+  { href: '/dues',      label: '회비', icon: '💰' },
+  { href: '/challenge', label: '매칭', icon: '🤝' },
+  { href: '/matches',   label: '기록', icon: '📋' },
 ];
 
 export function BottomNav() {
   const path = usePathname();
-  const { evalRequests, events } = useSoccerStore();
-  const pendingEvals  = evalRequests.filter((r) => r.status === 'pending').length;
-  const openEvents    = events.filter((e) => e.isOpen).length;
-  const badges: Record<string, number> = { '/admin': pendingEvals, '/attend': openEvents };
+  const { events, challenges, teamId } = useSoccerStore();
+  const incomingChallenges = challenges.filter((c) => c.targetTeamId === teamId && c.status === 'pending').length;
+  const openEvents = events.filter((e) => e.isOpen).length;
+  const badges: Record<string, number> = { '/attend': openEvents, '/challenge': incomingChallenges };
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-40">

@@ -117,6 +117,8 @@ export default function AttendPage() {
   const [date, setDate] = useState('');
   const [location, setLocation] = useState('');
   const [totalQuarters, setTotalQuarters] = useState(4);
+  const [repeatMode, setRepeatMode] = useState<'none' | 'weekly' | 'biweekly' | 'monthly'>('none');
+  const [repeatCount, setRepeatCount] = useState(4);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [teamResults, setTeamResults] = useState<Record<string, [Team, Team]>>({});
   const [teamAName, setTeamAName] = useState('A팀');
@@ -124,11 +126,25 @@ export default function AttendPage() {
   // 쿼터 선택 상태: { [playerId]: number[] }
   const [quarterSelections, setQuarterSelections] = useState<Record<string, number[]>>({});
 
-  function handleCreate(e: React.FormEvent) {
+  async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim() || !date) return;
-    addEvent(title.trim(), date, location.trim() || undefined, totalQuarters);
+    if (repeatMode === 'none') {
+      await addEvent(title.trim(), date, location.trim() || undefined, totalQuarters);
+    } else {
+      const base = new Date(date);
+      const promises = Array.from({ length: repeatCount }, (_, i) => {
+        const d = new Date(base);
+        if (repeatMode === 'weekly')   d.setDate(d.getDate() + i * 7);
+        if (repeatMode === 'biweekly') d.setDate(d.getDate() + i * 14);
+        if (repeatMode === 'monthly')  d.setMonth(d.getMonth() + i);
+        const suffix = repeatCount > 1 ? ` (${i + 1}/${repeatCount})` : '';
+        return addEvent(title.trim() + suffix, d.toISOString().slice(0, 16), location.trim() || undefined, totalQuarters);
+      });
+      await Promise.all(promises);
+    }
     setTitle(''); setDate(''); setLocation(''); setTotalQuarters(4);
+    setRepeatMode('none'); setRepeatCount(4);
     setShowCreate(false);
   }
 
@@ -196,8 +212,36 @@ export default function AttendPage() {
             </div>
           </div>
 
+          {/* 반복 설정 */}
+          <div>
+            <p className="text-xs font-semibold text-gray-500 mb-2">반복</p>
+            <div className="flex gap-2 mb-2">
+              {([['none', '없음'], ['weekly', '매주'], ['biweekly', '격주'], ['monthly', '매월']] as const).map(([v, label]) => (
+                <button key={v} type="button"
+                  onClick={() => setRepeatMode(v)}
+                  className={`flex-1 py-1.5 rounded-xl border text-xs font-semibold transition ${repeatMode === v ? 'bg-gray-900 text-white border-gray-900' : 'border-gray-200 text-gray-500'}`}>
+                  {label}
+                </button>
+              ))}
+            </div>
+            {repeatMode !== 'none' && (
+              <div className="flex items-center gap-2">
+                <p className="text-xs text-gray-400 flex-shrink-0">횟수</p>
+                <div className="flex gap-1.5">
+                  {[2, 3, 4, 6, 8, 12].map(n => (
+                    <button key={n} type="button"
+                      onClick={() => setRepeatCount(n)}
+                      className={`w-8 h-8 rounded-lg border text-xs font-semibold transition ${repeatCount === n ? 'bg-gray-900 text-white border-gray-900' : 'border-gray-200 text-gray-500'}`}>
+                      {n}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
           <button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-xl transition text-sm">
-            등록
+            {repeatMode !== 'none' ? `${repeatCount}개 일정 등록` : '등록'}
           </button>
         </form>
       )}

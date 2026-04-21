@@ -2,7 +2,7 @@
 import { create } from 'zustand';
 import { createClient } from '../lib/supabase';
 import * as db from '../lib/db';
-import { Player, MatchEvent, MatchRecord, Lineup, EvalRequest, Tier, VoteStatus, LineupSlot, AppNotification } from '../types';
+import { Player, MatchEvent, MatchRecord, Lineup, EvalRequest, Tier, VoteStatus, LineupSlot, AppNotification, Due, TeamChallenge } from '../types';
 
 interface SupabaseStore {
   // Data
@@ -15,6 +15,8 @@ interface SupabaseStore {
   matchRecords: MatchRecord[];
   lineups: Lineup[];
   evalRequests: EvalRequest[];
+  dues: Due[];
+  challenges: TeamChallenge[];
 
   // Notifications (local only for now)
   notifications: AppNotification[];
@@ -64,6 +66,17 @@ interface SupabaseStore {
   // Eval
   submitEvalRequest: (req: { playerId: string; playerName: string; currentTier: Tier; suggestedTier: Tier; reason?: string }) => Promise<void>;
   resolveEvalRequest: (reqId: string, approved: boolean) => Promise<void>;
+
+  // Dues
+  addDue: (playerId: string | null, playerName: string, month: string, amount: number) => Promise<void>;
+  markDuePaid: (dueId: string, paid: boolean) => Promise<void>;
+  removeDue: (dueId: string) => Promise<void>;
+  initMonthlyDues: (month: string, amount: number) => Promise<void>;
+
+  // Team Challenges
+  searchTeams: (query: string) => Promise<{ id: string; name: string; createdAt: string }[]>;
+  sendChallenge: (targetTeamId: string, targetTeamName: string, proposedDate?: string, location?: string, message?: string) => Promise<void>;
+  respondChallenge: (challengeId: string, status: 'accepted' | 'rejected') => Promise<void>;
 }
 
 function mapPlayer(row: Record<string, unknown>): Player {
@@ -134,6 +147,34 @@ function mapEvalRequest(row: Record<string, unknown>): EvalRequest {
   };
 }
 
+function mapDue(row: Record<string, unknown>): Due {
+  return {
+    id: row.id as string,
+    playerId: row.player_id as string | null,
+    playerName: row.player_name as string,
+    month: row.month as string,
+    amount: row.amount as number,
+    paid: row.paid as boolean,
+    paidAt: row.paid_at as string | undefined,
+    notes: row.notes as string | undefined,
+  };
+}
+
+function mapChallenge(row: Record<string, unknown>): TeamChallenge {
+  return {
+    id: row.id as string,
+    requesterTeamId: row.requester_team_id as string,
+    requesterTeamName: row.requester_team_name as string,
+    targetTeamId: row.target_team_id as string,
+    targetTeamName: row.target_team_name as string,
+    proposedDate: row.proposed_date as string | undefined,
+    location: row.location as string | undefined,
+    message: row.message as string | undefined,
+    status: row.status as 'pending' | 'accepted' | 'rejected',
+    createdAt: row.created_at as string,
+  };
+}
+
 export const useSupabaseStore = create<SupabaseStore>((set, get) => ({
   teamId: null,
   teamName: null,
@@ -144,6 +185,8 @@ export const useSupabaseStore = create<SupabaseStore>((set, get) => ({
   matchRecords: [],
   lineups: [],
   evalRequests: [],
+  dues: [],
+  challenges: [],
   team: null,
   notifications: [],
   loading: false,
@@ -165,11 +208,13 @@ export const useSupabaseStore = create<SupabaseStore>((set, get) => ({
       const teamId = profile.team_id as string;
       const team = profile.teams as Record<string, unknown> | null;
 
-      const [players, events, matchRecords, evalRequests] = await Promise.all([
+      const [players, events, matchRecords, evalRequests, dues, challenges] = await Promise.all([
         db.getPlayers(teamId),
         db.getEvents(teamId),
         db.getMatchRecords(teamId),
         db.getEvalRequests(teamId),
+        db.getDues(teamId),
+        db.getChallenges(teamId),
       ]);
 
       const teamName = team?.name as string ?? '';
@@ -184,6 +229,8 @@ export const useSupabaseStore = create<SupabaseStore>((set, get) => ({
         events: (events ?? []).map(mapEvent),
         matchRecords: (matchRecords ?? []).map(mapMatchRecord),
         evalRequests: (evalRequests ?? []).map(mapEvalRequest),
+        dues: (dues ?? []).map(mapDue),
+        challenges: (challenges ?? []).map(mapChallenge),
         initialized: true,
         loading: false,
       });
@@ -206,14 +253,17 @@ export const useSupabaseStore = create<SupabaseStore>((set, get) => ({
   refresh: async () => {
     const { teamId } = get();
     if (!teamId) return;
-    const [players, events, matchRecords, evalRequests] = await Promise.all([
+    const [players, events, matchRecords, evalRequests, dues, challenges] = await Promise.all([
       db.getPlayers(teamId), db.getEvents(teamId), db.getMatchRecords(teamId), db.getEvalRequests(teamId),
+      db.getDues(teamId), db.getChallenges(teamId),
     ]);
     set({
       players: (players ?? []).map(mapPlayer),
       events: (events ?? []).map(mapEvent),
       matchRecords: (matchRecords ?? []).map(mapMatchRecord),
       evalRequests: (evalRequests ?? []).map(mapEvalRequest),
+      dues: (dues ?? []).map(mapDue),
+      challenges: (challenges ?? []).map(mapChallenge),
     });
   },
 
@@ -332,6 +382,50 @@ export const useSupabaseStore = create<SupabaseStore>((set, get) => ({
     if (!teamId) return;
     const data = await db.getEvalRequests(teamId);
     set({ evalRequests: (data ?? []).map(mapEvalRequest) });
+  },
+
+  addDue: async (playerId, playerName, month, amount) => {
+    const { teamId } = get();
+    if (!teamId) return;
+    await db.addDue(teamId, playerId, playerName, month, amount);
+    const data = await db.getDues(teamId);
+    set({ dues: (data ?? []).map(mapDue) });
+  },
+
+  markDuePaid: async (dueId, paid) => {
+    await db.markDuePaid(dueId, paid);
+    set((s) => ({ dues: s.dues.map((d) => d.id === dueId ? { ...d, paid, paidAt: paid ? new Date().toISOString() : undefined } : d) }));
+  },
+
+  removeDue: async (dueId) => {
+    await db.removeDue(dueId);
+    set((s) => ({ dues: s.dues.filter((d) => d.id !== dueId) }));
+  },
+
+  initMonthlyDues: async (month, amount) => {
+    const { teamId, players } = get();
+    if (!teamId) return;
+    await db.initMonthlyDues(teamId, month, amount, players.map((p) => ({ id: p.id, name: p.name })));
+    const data = await db.getDues(teamId);
+    set({ dues: (data ?? []).map(mapDue) });
+  },
+
+  searchTeams: async (query) => {
+    const data = await db.searchTeams(query);
+    return (data ?? []).map((r) => ({ id: r.id as string, name: r.name as string, createdAt: r.created_at as string }));
+  },
+
+  sendChallenge: async (targetTeamId, targetTeamName, proposedDate, location, message) => {
+    const { teamId, teamName } = get();
+    if (!teamId || !teamName) return;
+    await db.sendChallenge(teamId, teamName, targetTeamId, targetTeamName, proposedDate, location, message);
+    const data = await db.getChallenges(teamId);
+    set({ challenges: (data ?? []).map(mapChallenge) });
+  },
+
+  respondChallenge: async (challengeId, status) => {
+    await db.respondChallenge(challengeId, status);
+    set((s) => ({ challenges: s.challenges.map((c) => c.id === challengeId ? { ...c, status } : c) }));
   },
 }));
 
