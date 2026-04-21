@@ -46,9 +46,9 @@ interface SupabaseStore {
   incrementMatchCount: (playerIds: string[]) => Promise<void>;
 
   // Events
-  addEvent: (title: string, date: string, location?: string) => Promise<void>;
+  addEvent: (title: string, date: string, location?: string, totalQuarters?: number) => Promise<void>;
   removeEvent: (id: string) => Promise<void>;
-  vote: (eventId: string, playerId: string, playerName: string, status: VoteStatus) => Promise<void>;
+  vote: (eventId: string, playerId: string, playerName: string, status: VoteStatus, quarters?: number[]) => Promise<void>;
   closeEvent: (id: string) => Promise<void>;
 
   // Lineups
@@ -86,12 +86,14 @@ function mapEvent(row: Record<string, unknown>): MatchEvent {
     title: row.title as string,
     date: row.date as string,
     location: row.location as string | undefined,
+    totalQuarters: (row.total_quarters as number) ?? 4,
     isOpen: row.is_open as boolean,
     createdAt: row.created_at as string,
     votes: votes.map((v) => ({
       playerId: v.player_id as string,
       playerName: v.player_name as string,
       status: v.status as VoteStatus,
+      quarters: v.quarters as number[] | undefined,
       votedAt: v.voted_at as string,
     })),
   };
@@ -255,10 +257,10 @@ export const useSupabaseStore = create<SupabaseStore>((set, get) => ({
     await db.incrementMatchCount(playerIds);
   },
 
-  addEvent: async (title, date, location) => {
+  addEvent: async (title, date, location, totalQuarters = 4) => {
     const { teamId } = get();
     if (!teamId) return;
-    await db.addEvent(teamId, title, date, location);
+    await db.addEvent(teamId, title, date, location, totalQuarters);
     const data = await db.getEvents(teamId);
     set({ events: (data ?? []).map(mapEvent) });
   },
@@ -268,8 +270,8 @@ export const useSupabaseStore = create<SupabaseStore>((set, get) => ({
     set((s) => ({ events: s.events.filter((e) => e.id !== id) }));
   },
 
-  vote: async (eventId, playerId, playerName, status) => {
-    await db.voteAttend(eventId, playerId, playerName, status);
+  vote: async (eventId, playerId, playerName, status, quarters) => {
+    await db.voteAttend(eventId, playerId, playerName, status, quarters);
     const { teamId } = get();
     if (!teamId) return;
     const data = await db.getEvents(teamId);

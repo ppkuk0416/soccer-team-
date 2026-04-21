@@ -131,11 +131,11 @@ export async function getEvents(teamId: string) {
   return data;
 }
 
-export async function addEvent(teamId: string, title: string, date: string, location?: string) {
+export async function addEvent(teamId: string, title: string, date: string, location?: string, totalQuarters = 4) {
   const sb = createClient();
   const { data, error } = await sb
     .from('events')
-    .insert({ team_id: teamId, title, date, location })
+    .insert({ team_id: teamId, title, date, location, total_quarters: totalQuarters })
     .select()
     .single();
   if (error) throw error;
@@ -148,10 +148,10 @@ export async function removeEvent(eventId: string) {
   if (error) throw error;
 }
 
-export async function voteAttend(eventId: string, playerId: string, playerName: string, status: VoteStatus) {
+export async function voteAttend(eventId: string, playerId: string, playerName: string, status: VoteStatus, quarters?: number[]) {
   const sb = createClient();
   const { error } = await sb.from('attend_votes').upsert(
-    { event_id: eventId, player_id: playerId, player_name: playerName, status },
+    { event_id: eventId, player_id: playerId, player_name: playerName, status, quarters: quarters ?? null },
     { onConflict: 'event_id,player_id' }
   );
   if (error) throw error;

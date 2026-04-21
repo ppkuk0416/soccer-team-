@@ -89,6 +89,7 @@ export interface AttendanceVote {
   playerId: string;
   playerName: string;
   status: VoteStatus;
+  quarters?: number[];  // null = 전쿼터, [1,2] = 1·2쿼터만
   votedAt: string;
 }
 
@@ -97,6 +98,7 @@ export interface MatchEvent {
   title: string;
   date: string;
   location?: string;
+  totalQuarters: number;  // 기본 4
   votes: AttendanceVote[];
   isOpen: boolean;
   createdAt: string;

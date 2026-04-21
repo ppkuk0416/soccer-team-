@@ -2,16 +2,83 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useSoccerStore } from '../store/useSupabaseStore';
-import { VoteStatus, MatchEvent, Player } from '../types';
+import { VoteStatus, MatchEvent, AttendanceVote } from '../types';
 import { TierBadge } from '../components/TierBadge';
 import { balanceTeams } from '../utils/teamBalancer';
 import { Team } from '../types';
 
-const VOTES: { status: VoteStatus; label: string; color: string; active: string }[] = [
+const STATUS_CONFIG: { status: VoteStatus; label: string; color: string; active: string }[] = [
   { status: 'attending', label: '참석', color: 'text-gray-500 bg-gray-50 border-gray-200', active: 'text-green-700 bg-green-50 border-green-400 font-bold' },
   { status: 'maybe',    label: '미정',  color: 'text-gray-500 bg-gray-50 border-gray-200', active: 'text-yellow-700 bg-yellow-50 border-yellow-400 font-bold' },
   { status: 'absent',   label: '불참', color: 'text-gray-500 bg-gray-50 border-gray-200', active: 'text-red-600 bg-red-50 border-red-400 font-bold' },
 ];
+
+function QuarterBadge({ quarters, total }: { quarters?: number[]; total: number }) {
+  if (!quarters || quarters.length === total) {
+    return <span className="text-[10px] bg-green-100 text-green-700 font-semibold px-1.5 py-0.5 rounded-full">전쿼터</span>;
+  }
+  return (
+    <span className="text-[10px] bg-blue-100 text-blue-700 font-semibold px-1.5 py-0.5 rounded-full">
+      {quarters.map(q => `${q}Q`).join('·')}
+    </span>
+  );
+}
+
+function QuarterGrid({ totalQuarters, selected, onChange }: {
+  totalQuarters: number;
+  selected: number[];
+  onChange: (q: number[]) => void;
+}) {
+  function toggle(q: number) {
+    const next = selected.includes(q) ? selected.filter(x => x !== q) : [...selected, q].sort((a, b) => a - b);
+    onChange(next.length === totalQuarters ? [] : next); // 전체 선택 시 빈 배열(= 전쿼터)
+  }
+  const all = Array.from({ length: totalQuarters }, (_, i) => i + 1);
+  const isAll = selected.length === 0 || selected.length === totalQuarters;
+
+  return (
+    <div className="mt-2 space-y-1.5">
+      <p className="text-[11px] text-gray-400">참석 쿼터 선택</p>
+      <div className="flex gap-1.5 flex-wrap">
+        <button type="button"
+          onClick={() => onChange([])}
+          className={`text-xs px-2.5 py-1 rounded-lg border transition ${isAll ? 'border-green-400 bg-green-50 text-green-700 font-bold' : 'border-gray-200 text-gray-500'}`}>
+          전쿼터
+        </button>
+        {all.map(q => (
+          <button key={q} type="button"
+            onClick={() => toggle(q)}
+            className={`text-xs px-2.5 py-1 rounded-lg border transition ${!isAll && selected.includes(q) ? 'border-blue-400 bg-blue-50 text-blue-700 font-bold' : 'border-gray-200 text-gray-500'}`}>
+            {q}쿼터
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function QuarterSummary({ event, playerCount }: { event: MatchEvent; playerCount: number }) {
+  const all = Array.from({ length: event.totalQuarters }, (_, i) => i + 1);
+  const attending = event.votes.filter(v => v.status === 'attending');
+
+  return (
+    <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${event.totalQuarters}, 1fr)` }}>
+      {all.map(q => {
+        const count = attending.filter(v => !v.quarters || v.quarters.length === 0 || v.quarters.includes(q)).length;
+        const pct = playerCount > 0 ? Math.round((count / playerCount) * 100) : 0;
+        return (
+          <div key={q} className="text-center bg-gray-50 rounded-lg py-2">
+            <div className="text-sm font-black text-gray-900">{count}</div>
+            <div className="text-[10px] text-gray-400">{q}Q</div>
+            <div className="mt-1 h-1 bg-gray-200 rounded-full overflow-hidden mx-2">
+              <div className="h-full bg-green-400 rounded-full transition-all" style={{ width: `${pct}%` }} />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 function InlineTeamResult({ teams }: { teams: [Team, Team] }) {
   const diff = Math.abs(teams[0].totalScore - teams[1].totalScore);
@@ -49,17 +116,25 @@ export default function AttendPage() {
   const [title, setTitle] = useState('');
   const [date, setDate] = useState('');
   const [location, setLocation] = useState('');
+  const [totalQuarters, setTotalQuarters] = useState(4);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [teamResults, setTeamResults] = useState<Record<string, [Team, Team]>>({});
   const [teamAName, setTeamAName] = useState('A팀');
   const [teamBName, setTeamBName] = useState('B팀');
+  // 쿼터 선택 상태: { [playerId]: number[] }
+  const [quarterSelections, setQuarterSelections] = useState<Record<string, number[]>>({});
 
   function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim() || !date) return;
-    addEvent(title.trim(), date, location.trim() || undefined);
-    setTitle(''); setDate(''); setLocation('');
+    addEvent(title.trim(), date, location.trim() || undefined, totalQuarters);
+    setTitle(''); setDate(''); setLocation(''); setTotalQuarters(4);
     setShowCreate(false);
+  }
+
+  function handleVote(eventId: string, playerId: string, playerName: string, status: VoteStatus) {
+    const quarters = quarterSelections[`${eventId}:${playerId}`];
+    vote(eventId, playerId, playerName, status, quarters && quarters.length > 0 ? quarters : undefined);
   }
 
   function handleBalance(event: MatchEvent) {
@@ -106,6 +181,21 @@ export default function AttendPage() {
             }} required />
           <input className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 text-gray-900"
             value={location} onChange={(e) => setLocation(e.target.value)} placeholder="장소 (선택)" />
+
+          {/* 쿼터 수 설정 */}
+          <div>
+            <p className="text-xs font-semibold text-gray-500 mb-2">쿼터 수</p>
+            <div className="flex gap-2">
+              {[2, 3, 4, 5, 6].map(n => (
+                <button key={n} type="button"
+                  onClick={() => setTotalQuarters(n)}
+                  className={`flex-1 py-2 rounded-xl border text-sm font-semibold transition ${totalQuarters === n ? 'bg-gray-900 text-white border-gray-900' : 'border-gray-200 text-gray-500'}`}>
+                  {n}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-xl transition text-sm">
             등록
           </button>
@@ -125,7 +215,7 @@ export default function AttendPage() {
           const attending = event.votes.filter((v) => v.status === 'attending');
           const isExpanded = expandedId === event.id;
           const eventDate = new Date(event.date);
-          const voteMap = new Map(event.votes.map((v) => [v.playerId, v.status]));
+          const voteMap = new Map(event.votes.map((v) => [v.playerId, v]));
           const unvoted = players.filter((p) => !voteMap.has(p.id));
 
           return (
@@ -133,7 +223,10 @@ export default function AttendPage() {
               <div className="p-4">
                 <div className="flex justify-between items-start mb-3">
                   <div>
-                    <h3 className="font-bold text-gray-900">{event.title}</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-gray-900">{event.title}</h3>
+                      <span className="text-[10px] bg-gray-100 text-gray-500 font-semibold px-1.5 py-0.5 rounded-full">{event.totalQuarters}Q</span>
+                    </div>
                     <p className="text-xs text-gray-400 mt-0.5">
                       {eventDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })}{' '}
                       {eventDate.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}
@@ -145,11 +238,16 @@ export default function AttendPage() {
                   )}
                 </div>
 
+                {/* 쿼터별 참석 현황 */}
+                {attending.length > 0 && (
+                  <QuarterSummary event={event} playerCount={players.length} />
+                )}
+
                 {/* Vote summary chips */}
-                <div className="flex gap-2 text-xs">
+                <div className="flex gap-2 text-xs mt-3">
                   <span className="bg-green-50 text-green-700 font-semibold px-2.5 py-1 rounded-full">✅ {attending.length}</span>
-                  <span className="bg-yellow-50 text-yellow-700 font-semibold px-2.5 py-1 rounded-full">🤔 {event.votes.filter(v=>v.status==='maybe').length}</span>
-                  <span className="bg-red-50 text-red-600 font-semibold px-2.5 py-1 rounded-full">❌ {event.votes.filter(v=>v.status==='absent').length}</span>
+                  <span className="bg-yellow-50 text-yellow-700 font-semibold px-2.5 py-1 rounded-full">🤔 {event.votes.filter(v => v.status === 'maybe').length}</span>
+                  <span className="bg-red-50 text-red-600 font-semibold px-2.5 py-1 rounded-full">❌ {event.votes.filter(v => v.status === 'absent').length}</span>
                   <span className="bg-gray-50 text-gray-500 font-semibold px-2.5 py-1 rounded-full">미투표 {unvoted.length}</span>
                 </div>
               </div>
@@ -161,34 +259,52 @@ export default function AttendPage() {
               </button>
 
               {isExpanded && (
-                <div className="px-4 pb-4 pt-3 space-y-2">
-                  {/* All players vote list */}
+                <div className="px-4 pb-4 pt-3 space-y-1">
                   {players.length === 0 ? (
                     <p className="text-xs text-gray-400 py-2">팀 탭에서 선수를 먼저 등록해주세요</p>
                   ) : (
                     [...players].sort((a, b) => a.name.localeCompare(b.name)).map((p) => {
                       const myVote = voteMap.get(p.id);
+                      const selKey = `${event.id}:${p.id}`;
+                      const selQuarters = quarterSelections[selKey] ?? [];
+
                       return (
-                        <div key={p.id} className="flex items-center justify-between gap-2 py-1.5 border-b border-gray-50 last:border-0">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <span className="text-sm font-medium text-gray-900 truncate">{p.name}</span>
-                            <TierBadge tier={p.tier} status={p.status} />
+                        <div key={p.id} className="py-2 border-b border-gray-50 last:border-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className="text-sm font-medium text-gray-900 truncate">{p.name}</span>
+                              <TierBadge tier={p.tier} status={p.status} />
+                              {myVote?.status === 'attending' && (
+                                <QuarterBadge quarters={myVote.quarters} total={event.totalQuarters} />
+                              )}
+                            </div>
+                            <div className="flex gap-1 flex-shrink-0">
+                              {STATUS_CONFIG.map(({ status, label, color, active }) => (
+                                <button key={status}
+                                  onClick={() => handleVote(event.id, p.id, p.name, status)}
+                                  className={`text-xs px-2.5 py-1 rounded-lg border transition ${myVote?.status === status ? active : color}`}>
+                                  {label}
+                                </button>
+                              ))}
+                            </div>
                           </div>
-                          <div className="flex gap-1 flex-shrink-0">
-                            {VOTES.map(({ status, label, color, active }) => (
-                              <button key={status}
-                                onClick={() => vote(event.id, p.id, p.name, status)}
-                                className={`text-xs px-2.5 py-1 rounded-lg border transition ${myVote === status ? active : color}`}>
-                                {label}
-                              </button>
-                            ))}
-                          </div>
+                          {/* 참석 선택 시 쿼터 선택 UI 표시 */}
+                          {myVote?.status === 'attending' && (
+                            <QuarterGrid
+                              totalQuarters={event.totalQuarters}
+                              selected={selQuarters}
+                              onChange={(q) => {
+                                setQuarterSelections(prev => ({ ...prev, [selKey]: q }));
+                                vote(event.id, p.id, p.name, 'attending', q.length > 0 ? q : undefined);
+                              }}
+                            />
+                          )}
                         </div>
                       );
                     })
                   )}
 
-                  {/* Team balance */}
+                  {/* 팀 나누기 */}
                   {attending.length >= 2 && (
                     <div className="pt-3 border-t border-gray-100 space-y-3">
                       <div className="flex gap-2">
@@ -207,7 +323,7 @@ export default function AttendPage() {
                   )}
 
                   {role === 'admin' && (
-                    <div className="flex gap-2 mt-1">
+                    <div className="flex gap-2 mt-2">
                       <Link href={`/lineup/${event.id}`}
                         className="flex-1 text-xs text-green-600 font-semibold hover:bg-green-50 py-2 border border-green-200 rounded-xl transition text-center">
                         🗒️ 라인업 설정
@@ -232,11 +348,14 @@ export default function AttendPage() {
             {closedEvents.map((event) => (
               <div key={event.id} className="bg-gray-50 rounded-xl px-4 py-3 flex justify-between items-center">
                 <div>
-                  <span className="text-sm font-medium text-gray-600">{event.title}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-gray-600">{event.title}</span>
+                    <span className="text-[10px] bg-gray-200 text-gray-500 font-semibold px-1.5 py-0.5 rounded-full">{event.totalQuarters}Q</span>
+                  </div>
                   <p className="text-xs text-gray-400">{new Date(event.date).toLocaleDateString('ko-KR')}</p>
                 </div>
                 <div className="flex items-center gap-2 text-xs">
-                  <span className="text-green-600 font-semibold">✅ {event.votes.filter(v=>v.status==='attending').length}</span>
+                  <span className="text-green-600 font-semibold">✅ {event.votes.filter(v => v.status === 'attending').length}</span>
                   {role === 'admin' && (
                     <button onClick={() => removeEvent(event.id)} className="text-gray-300 hover:text-red-400 ml-1">✕</button>
                   )}
