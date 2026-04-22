@@ -19,19 +19,26 @@ export async function middleware(request: NextRequest) {
     }
   );
 
+  // 세션 갱신 (토큰 만료 대응)
   const { data: { user } } = await supabase.auth.getUser();
 
-  const isAuthPage = request.nextUrl.pathname.startsWith('/auth');
+  const path = request.nextUrl.pathname;
+  const isAuthPage = path.startsWith('/auth');
+  const isPublic = isAuthPage;
 
-  if (!user && !isAuthPage) {
+  if (!user && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = '/auth';
+    // 원래 가려던 경로를 returnTo 파라미터로 저장
+    if (path !== '/') url.searchParams.set('returnTo', path);
     return NextResponse.redirect(url);
   }
 
   if (user && isAuthPage) {
+    const returnTo = request.nextUrl.searchParams.get('returnTo') ?? '/team';
     const url = request.nextUrl.clone();
-    url.pathname = '/team';
+    url.pathname = returnTo;
+    url.search = '';
     return NextResponse.redirect(url);
   }
 

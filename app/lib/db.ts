@@ -14,11 +14,37 @@ export async function signUp(email: string, password: string, inviteCode: string
   if (teamErr || !team) throw new Error('유효하지 않은 초대코드입니다');
 
   const { data, error } = await sb.auth.signUp({ email, password });
-  if (error) throw error;
+  if (error) {
+    if (error.message.includes('already registered')) throw new Error('이미 등록된 이메일입니다');
+    throw error;
+  }
 
   if (data.user) {
     await sb.from('profiles').upsert({ id: data.user.id, team_id: team.id, role: 'member' });
   }
+  return data;
+}
+
+export async function signUpAndCreateTeam(email: string, password: string, teamName: string, teamDesc?: string) {
+  const sb = createClient();
+
+  // 1. 회원가입
+  const { data, error } = await sb.auth.signUp({ email, password });
+  if (error) {
+    if (error.message.includes('already registered')) throw new Error('이미 등록된 이메일입니다');
+    throw error;
+  }
+  if (!data.user) throw new Error('회원가입에 실패했습니다');
+
+  // 2. 팀 생성 + admin 프로필
+  const { data: team, error: teamErr } = await sb
+    .from('teams')
+    .insert({ name: teamName, description: teamDesc })
+    .select()
+    .single();
+  if (teamErr) throw teamErr;
+
+  await sb.from('profiles').upsert({ id: data.user.id, team_id: team.id, role: 'admin' });
   return data;
 }
 
