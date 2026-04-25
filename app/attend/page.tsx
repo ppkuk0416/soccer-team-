@@ -8,9 +8,9 @@ import { balanceTeams } from '../utils/teamBalancer';
 import { Team } from '../types';
 
 const STATUS_CONFIG: { status: VoteStatus; label: string; base: string; active: string }[] = [
-  { status: 'attending', label: '참석', base: 'text-gray-500 bg-slate-100', active: 'text-green-700 bg-green-100 font-bold' },
-  { status: 'maybe',    label: '미정',  base: 'text-gray-500 bg-slate-100', active: 'text-yellow-700 bg-yellow-100 font-bold' },
-  { status: 'absent',   label: '불참', base: 'text-gray-500 bg-slate-100', active: 'text-red-600 bg-red-100 font-bold' },
+  { status: 'attending', label: '참석', base: 'text-gray-500 bg-stone-100', active: 'text-green-700 bg-green-100 font-bold' },
+  { status: 'maybe',    label: '미정',  base: 'text-gray-500 bg-stone-100', active: 'text-yellow-700 bg-yellow-100 font-bold' },
+  { status: 'absent',   label: '불참', base: 'text-gray-500 bg-stone-100', active: 'text-red-600 bg-red-100 font-bold' },
 ];
 
 function QuarterBadge({ quarters, total }: { quarters?: number[]; total: number }) {
@@ -34,7 +34,7 @@ function QuarterGrid({ totalQuarters, selected, onChange }: {
   const all = Array.from({ length: totalQuarters }, (_, i) => i + 1);
   const isAll = selected.length === 0 || selected.length === totalQuarters;
   return (
-    <div className="mt-2.5 bg-slate-50 rounded-xl p-3 space-y-2">
+    <div className="mt-2.5 bg-stone-50 rounded-xl p-3 space-y-2">
       <p className="text-[11px] text-gray-400 font-medium">참석 쿼터 선택</p>
       <div className="flex gap-1.5 flex-wrap">
         <button type="button" onClick={() => onChange([])}
@@ -61,7 +61,7 @@ function QuarterSummary({ event, playerCount }: { event: MatchEvent; playerCount
         const count = attending.filter(v => !v.quarters || v.quarters.length === 0 || v.quarters.includes(q)).length;
         const pct = playerCount > 0 ? Math.round((count / playerCount) * 100) : 0;
         return (
-          <div key={q} className="text-center bg-slate-50 rounded-xl py-2.5">
+          <div key={q} className="text-center bg-stone-50 rounded-xl py-2.5">
             <div className="text-base font-black text-gray-900">{count}</div>
             <div className="text-[10px] text-gray-400 font-medium">{q}Q</div>
             <div className="mt-1.5 h-1 bg-gray-200 rounded-full overflow-hidden mx-2">
@@ -156,7 +156,7 @@ export default function AttendPage() {
   const openEvents   = events.filter((e) => e.isOpen);
   const closedEvents = events.filter((e) => !e.isOpen);
 
-  const INPUT = "w-full bg-slate-50 border-0 rounded-xl px-3.5 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400";
+  const INPUT = "w-full bg-stone-50 border-0 rounded-xl px-3.5 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400";
 
   return (
     <div className="space-y-4">
@@ -168,7 +168,7 @@ export default function AttendPage() {
         </div>
         {role === 'admin' && (
           <button onClick={() => setShowCreate(!showCreate)}
-            className={`font-bold px-4 py-2 rounded-xl transition text-sm ${showCreate ? 'bg-slate-100 text-gray-600' : 'bg-green-600 hover:bg-green-700 text-white shadow-sm'}`}>
+            className={`font-bold px-4 py-2 rounded-xl transition text-sm ${showCreate ? 'bg-stone-100 text-gray-600' : 'bg-green-600 hover:bg-green-700 text-white shadow-sm'}`}>
             {showCreate ? '취소' : '+ 일정'}
           </button>
         )}
@@ -192,7 +192,7 @@ export default function AttendPage() {
             <div className="flex gap-2">
               {[2, 3, 4, 5, 6].map(n => (
                 <button key={n} type="button" onClick={() => setTotalQuarters(n)}
-                  className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition ${totalQuarters === n ? 'bg-gray-900 text-white' : 'bg-slate-100 text-gray-500'}`}>
+                  className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition ${totalQuarters === n ? 'bg-gray-900 text-white' : 'bg-stone-100 text-gray-500'}`}>
                   {n}
                 </button>
               ))}
@@ -204,7 +204,7 @@ export default function AttendPage() {
             <div className="flex gap-1.5 mb-2.5">
               {([['none', '없음'], ['weekly', '매주'], ['biweekly', '격주'], ['monthly', '매월']] as const).map(([v, label]) => (
                 <button key={v} type="button" onClick={() => setRepeatMode(v)}
-                  className={`flex-1 py-2 rounded-xl text-xs font-bold transition ${repeatMode === v ? 'bg-gray-900 text-white' : 'bg-slate-100 text-gray-500'}`}>
+                  className={`flex-1 py-2 rounded-xl text-xs font-bold transition ${repeatMode === v ? 'bg-gray-900 text-white' : 'bg-stone-100 text-gray-500'}`}>
                   {label}
                 </button>
               ))}
@@ -215,7 +215,7 @@ export default function AttendPage() {
                 <div className="flex gap-1.5">
                   {[2, 3, 4, 6, 8, 12].map(n => (
                     <button key={n} type="button" onClick={() => setRepeatCount(n)}
-                      className={`w-9 h-9 rounded-xl text-xs font-bold transition ${repeatCount === n ? 'bg-gray-900 text-white' : 'bg-slate-100 text-gray-500'}`}>
+                      className={`w-9 h-9 rounded-xl text-xs font-bold transition ${repeatCount === n ? 'bg-gray-900 text-white' : 'bg-stone-100 text-gray-500'}`}>
                       {n}
                     </button>
                   ))}
@@ -276,7 +276,7 @@ export default function AttendPage() {
                         <p className="text-xs text-gray-400 mt-0.5">
                           {eventDate.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}
                           {event.location && <span> · {event.location}</span>}
-                          <span className="ml-1.5 bg-slate-100 text-gray-500 font-bold px-1.5 py-0.5 rounded-md text-[10px]">{event.totalQuarters}Q</span>
+                          <span className="ml-1.5 bg-stone-100 text-gray-500 font-bold px-1.5 py-0.5 rounded-md text-[10px]">{event.totalQuarters}Q</span>
                         </p>
                       </div>
                       {role === 'admin' && (
@@ -292,7 +292,7 @@ export default function AttendPage() {
                       <span className="bg-yellow-100 text-yellow-700 font-bold text-xs px-2.5 py-1 rounded-lg">🤔 {maybe.length}</span>
                       <span className="bg-red-100 text-red-600 font-bold text-xs px-2.5 py-1 rounded-lg">❌ {absent.length}</span>
                       {unvoted.length > 0 && (
-                        <span className="bg-slate-100 text-gray-400 font-bold text-xs px-2.5 py-1 rounded-lg">미투표 {unvoted.length}</span>
+                        <span className="bg-stone-100 text-gray-400 font-bold text-xs px-2.5 py-1 rounded-lg">미투표 {unvoted.length}</span>
                       )}
                     </div>
                   </div>
@@ -308,7 +308,7 @@ export default function AttendPage() {
 
               {/* Expand toggle */}
               <button onClick={() => setExpandedId(isExpanded ? null : event.id)}
-                className="w-full text-xs text-gray-400 hover:text-gray-600 py-3 border-t border-slate-50 transition bg-slate-50/50 font-medium">
+                className="w-full text-xs text-gray-400 hover:text-gray-600 py-3 border-t border-stone-50 transition bg-stone-50/50 font-medium">
                 {isExpanded ? '▲ 접기' : '▼ 투표하기 · 명단 보기'}
               </button>
 
@@ -323,7 +323,7 @@ export default function AttendPage() {
                       const selKey = `${event.id}:${p.id}`;
                       const selQuarters = quarterSelections[selKey] ?? [];
                       return (
-                        <div key={p.id} className="py-2.5 border-b border-slate-50 last:border-0">
+                        <div key={p.id} className="py-2.5 border-b border-stone-50 last:border-0">
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-2 min-w-0">
                               <span className="text-sm font-bold text-gray-900 truncate">{p.name}</span>
@@ -359,12 +359,12 @@ export default function AttendPage() {
 
                   {/* 팀 나누기 */}
                   {attending.length >= 2 && (
-                    <div className="pt-3 border-t border-slate-100 space-y-3 mt-1">
+                    <div className="pt-3 border-t border-stone-100 space-y-3 mt-1">
                       <div className="flex gap-2">
-                        <input className="flex-1 bg-slate-50 border-0 rounded-xl px-3 py-2 text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-green-400"
+                        <input className="flex-1 bg-stone-50 border-0 rounded-xl px-3 py-2 text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-green-400"
                           value={teamAName} onChange={(e) => setTeamAName(e.target.value)} />
                         <span className="self-center text-gray-300 text-xs font-bold">vs</span>
-                        <input className="flex-1 bg-slate-50 border-0 rounded-xl px-3 py-2 text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-green-400"
+                        <input className="flex-1 bg-stone-50 border-0 rounded-xl px-3 py-2 text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-green-400"
                           value={teamBName} onChange={(e) => setTeamBName(e.target.value)} />
                       </div>
                       <button onClick={() => handleBalance(event)}
@@ -382,7 +382,7 @@ export default function AttendPage() {
                         🗒️ 라인업 설정
                       </Link>
                       <button onClick={() => closeEvent(event.id)}
-                        className="flex-1 text-xs text-gray-400 hover:text-gray-600 py-2.5 bg-slate-50 rounded-xl transition font-medium">
+                        className="flex-1 text-xs text-gray-400 hover:text-gray-600 py-2.5 bg-stone-50 rounded-xl transition font-medium">
                         투표 마감
                       </button>
                     </div>
@@ -401,7 +401,7 @@ export default function AttendPage() {
           <div className="space-y-2">
             {closedEvents.map((event) => (
               <div key={event.id} className="bg-white rounded-2xl shadow-sm px-4 py-3.5 flex items-center gap-3">
-                <div className="w-9 h-9 bg-slate-100 rounded-xl flex items-center justify-center shrink-0">
+                <div className="w-9 h-9 bg-stone-100 rounded-xl flex items-center justify-center shrink-0">
                   <span className="text-sm font-black text-gray-400">{new Date(event.date).getDate()}</span>
                 </div>
                 <div className="flex-1 min-w-0">

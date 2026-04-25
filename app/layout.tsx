@@ -17,12 +17,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko" className={`${geist.variable} h-full antialiased`}>
-      <body className="min-h-full bg-slate-100">
+      <body className="min-h-full" style={{ background: 'var(--background)' }}>
         <StoreInitializer />
         <LoadingScreen />
         <Toaster />
         <AppHeader />
-        <main className="max-w-md mx-auto px-4 pt-4 pb-32">
+        <main className="max-w-md mx-auto px-4 pt-5 pb-32">
           {children}
         </main>
         <BottomNav />

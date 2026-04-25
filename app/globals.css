@@ -1,8 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --background: #F1F5F9;
-  --foreground: #0F172A;
+  --background: #F5F3EF;
+  --foreground: #1C1917;
+  --card: #FFFFFF;
+  --muted: #78716C;
+  --muted-bg: #F0EDE8;
+  --border: #E7E4DF;
+  --accent: #16A34A;
 }
 
 @theme inline {
@@ -17,4 +22,10 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Smooth tap highlight off on mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
 }

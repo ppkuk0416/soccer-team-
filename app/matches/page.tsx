@@ -13,7 +13,7 @@ function getMvpResult(votes: MatchRecord['mvpVotes']) {
   return [...counts.values()].sort((a, b) => b.count - a.count)[0];
 }
 
-const INPUT = "w-full bg-slate-50 border-0 rounded-xl px-3.5 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400";
+const INPUT = "w-full bg-stone-50 border-0 rounded-xl px-3.5 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400";
 
 export default function MatchesPage() {
   const { players, matchRecords, role, addMatchRecord, removeMatchRecord, voteForMvp, closeMvpVoting, incrementMatchCount } = useSoccerStore();
@@ -57,7 +57,7 @@ export default function MatchesPage() {
         </div>
         {role === 'admin' && (
           <button onClick={() => setShowForm(!showForm)}
-            className={`font-bold px-4 py-2 rounded-xl transition text-sm ${showForm ? 'bg-slate-100 text-gray-600' : 'bg-green-600 hover:bg-green-700 text-white shadow-sm'}`}>
+            className={`font-bold px-4 py-2 rounded-xl transition text-sm ${showForm ? 'bg-stone-100 text-gray-600' : 'bg-green-600 hover:bg-green-700 text-white shadow-sm'}`}>
             {showForm ? '취소' : '+ 기록'}
           </button>
         )}
@@ -91,15 +91,15 @@ export default function MatchesPage() {
           <input type="date" className={INPUT} value={date} onChange={(e) => setDate(e.target.value)} />
 
           <div className="flex gap-2">
-            <input className={`flex-1 bg-slate-50 border-0 rounded-xl px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400 text-center font-bold`}
+            <input className={`flex-1 bg-stone-50 border-0 rounded-xl px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400 text-center font-bold`}
               value={teamAName} onChange={(e) => setTeamAName(e.target.value)} />
             <span className="self-center text-gray-300 font-black text-sm">vs</span>
-            <input className={`flex-1 bg-slate-50 border-0 rounded-xl px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-red-400 text-center font-bold`}
+            <input className={`flex-1 bg-stone-50 border-0 rounded-xl px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-red-400 text-center font-bold`}
               value={teamBName} onChange={(e) => setTeamBName(e.target.value)} />
           </div>
 
           {/* Score input */}
-          <div className="bg-slate-50 rounded-2xl p-4">
+          <div className="bg-stone-50 rounded-2xl p-4">
             <div className="flex items-center justify-center gap-6">
               <div className="text-center">
                 <p className="text-xs text-blue-500 font-bold mb-2">{teamAName}</p>
@@ -121,7 +121,7 @@ export default function MatchesPage() {
               {sortedPlayers.map((p) => (
                 <button key={p.id} type="button" onClick={() => togglePlayer(p.id)}
                   className={`flex items-center justify-between text-xs px-3.5 py-2.5 rounded-xl font-semibold transition ${
-                    selectedIds.has(p.id) ? 'bg-green-600 text-white' : 'bg-slate-100 text-gray-600 hover:bg-slate-200'
+                    selectedIds.has(p.id) ? 'bg-green-600 text-white' : 'bg-stone-100 text-gray-600 hover:bg-slate-200'
                   }`}>
                   <span>{p.name}</span>
                   {selectedIds.has(p.id) && <span className="text-green-200">✓</span>}
@@ -131,7 +131,7 @@ export default function MatchesPage() {
           </div>
 
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="경기 메모 (선택)"
-            className="w-full bg-slate-50 border-0 rounded-xl px-3.5 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400 resize-none h-16 placeholder:text-gray-400" />
+            className="w-full bg-stone-50 border-0 rounded-xl px-3.5 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400 resize-none h-16 placeholder:text-gray-400" />
 
           <button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition">
             저장 & MVP 투표 시작
@@ -171,7 +171,7 @@ export default function MatchesPage() {
           const isWin  = m.scoreA > m.scoreB;
           const isDraw = m.scoreA === m.scoreB;
           const resultLabel = isWin ? `${m.teamAName} 승` : isDraw ? '무승부' : `${m.teamBName} 승`;
-          const resultColor = isWin ? 'text-blue-600 bg-blue-50' : isDraw ? 'text-gray-500 bg-slate-100' : 'text-red-500 bg-red-50';
+          const resultColor = isWin ? 'text-blue-600 bg-blue-50' : isDraw ? 'text-gray-500 bg-stone-100' : 'text-red-500 bg-red-50';
 
           return (
             <div key={m.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
@@ -190,7 +190,7 @@ export default function MatchesPage() {
                 </div>
 
                 {/* Score card */}
-                <div className="bg-slate-50 rounded-2xl p-4">
+                <div className="bg-stone-50 rounded-2xl p-4">
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex-1 text-center">
                       <p className="text-xs text-blue-500 font-bold mb-1">{m.teamAName}</p>
@@ -210,7 +210,7 @@ export default function MatchesPage() {
                 {participants.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-3">
                     {participants.map((p) => (
-                      <span key={p.id} className="text-[11px] bg-slate-100 text-gray-500 font-medium px-2 py-0.5 rounded-lg">{p.name}</span>
+                      <span key={p.id} className="text-[11px] bg-stone-100 text-gray-500 font-medium px-2 py-0.5 rounded-lg">{p.name}</span>
                     ))}
                   </div>
                 )}
@@ -231,7 +231,7 @@ export default function MatchesPage() {
 
                 {/* MVP voting open */}
                 {m.mvpOpen && (
-                  <div className="mt-3 pt-3 border-t border-slate-100">
+                  <div className="mt-3 pt-3 border-t border-stone-100">
                     <div className="flex items-center justify-between mb-2.5">
                       <p className="text-xs font-bold text-gray-600">🏆 MVP 투표 진행중</p>
                       {role === 'admin' && (
@@ -242,7 +242,7 @@ export default function MatchesPage() {
                       )}
                     </div>
                     {m.mvpVotes.length > 0 && (
-                      <div className="bg-slate-50 rounded-xl p-2.5 mb-2.5 space-y-1">
+                      <div className="bg-stone-50 rounded-xl p-2.5 mb-2.5 space-y-1">
                         {(() => {
                           const counts = new Map<string, { name: string; count: number }>();
                           m.mvpVotes.forEach((v) => { const p = counts.get(v.mvpPlayerId); counts.set(v.mvpPlayerId, { name: v.mvpPlayerName, count: (p?.count ?? 0) + 1 }); });
@@ -259,7 +259,7 @@ export default function MatchesPage() {
                       <div className="grid grid-cols-3 gap-1.5">
                         {participants.filter(p => p.id !== myVoterId).map((p) => (
                           <button key={p.id} onClick={() => voteForMvp(m.id, myVoterId, p.id, p.name)}
-                            className="text-xs py-2 bg-slate-100 hover:bg-amber-100 hover:text-amber-700 rounded-xl text-gray-600 font-semibold transition">
+                            className="text-xs py-2 bg-stone-100 hover:bg-amber-100 hover:text-amber-700 rounded-xl text-gray-600 font-semibold transition">
                             {p.name}
                           </button>
                         ))}

@@ -57,11 +57,11 @@ export default function TeamPage() {
           <h2 className="font-black text-gray-900 text-lg mb-4">{team ? '팀 정보 수정' : '팀 만들기'}</h2>
           <form onSubmit={handleSaveTeam} className="space-y-3">
             <input
-              className="w-full bg-slate-50 border-0 rounded-xl px-3.5 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400"
+              className="w-full bg-stone-50 border-0 rounded-xl px-3.5 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400"
               value={teamName} onChange={(e) => setTeamName(e.target.value)}
               placeholder="팀 이름 (예: 화요일 FC)" required />
             <textarea
-              className="w-full bg-slate-50 border-0 rounded-xl px-3.5 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400 resize-none h-20 placeholder:text-gray-400"
+              className="w-full bg-stone-50 border-0 rounded-xl px-3.5 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400 resize-none h-20 placeholder:text-gray-400"
               value={teamDesc} onChange={(e) => setTeamDesc(e.target.value)}
               placeholder="팀 소개 (예: 매주 화요일 저녁 7시)" />
             <div className="flex gap-2">
@@ -71,7 +71,7 @@ export default function TeamPage() {
               </button>
               {team && (
                 <button type="button" onClick={() => setEditingTeam(false)}
-                  className="px-5 bg-slate-100 text-gray-600 rounded-xl text-sm font-medium">
+                  className="px-5 bg-stone-100 text-gray-600 rounded-xl text-sm font-medium">
                   취소
                 </button>
               )}
@@ -141,7 +141,7 @@ export default function TeamPage() {
                   return (
                     <div key={key} className="flex items-center gap-3">
                       <span className="text-xs text-gray-500 w-14 shrink-0">{label}</span>
-                      <div className="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden">
+                      <div className="flex-1 bg-stone-100 rounded-full h-2 overflow-hidden">
                         <div className={`h-full ${color} rounded-full transition-all`} style={{ width: `${pct}%` }} />
                       </div>
                       <span className="text-xs font-bold text-gray-600 w-8 text-right shrink-0">{count}명</span>
@@ -151,7 +151,7 @@ export default function TeamPage() {
                 {players.filter(p => p.status === 'measuring').length > 0 && (
                   <div className="flex items-center gap-3">
                     <span className="text-xs text-gray-400 w-14 shrink-0">신입</span>
-                    <div className="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden">
+                    <div className="flex-1 bg-stone-100 rounded-full h-2 overflow-hidden">
                       <div className="h-full bg-gray-300 rounded-full"
                         style={{ width: `${Math.round((players.filter(p => p.status === 'measuring').length / players.length) * 100)}%` }} />
                     </div>
@@ -221,7 +221,7 @@ export default function TeamPage() {
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-gray-900">{p.name}</span>
                           {p.position && (
-                            <span className="text-[10px] text-gray-400 font-medium bg-slate-100 px-1.5 py-0.5 rounded-md">
+                            <span className="text-[10px] text-gray-400 font-medium bg-stone-100 px-1.5 py-0.5 rounded-md">
                               {p.position}
                             </span>
                           )}

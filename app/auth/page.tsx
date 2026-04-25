@@ -12,7 +12,7 @@ const MODE_CONFIG: Record<Mode, { label: string; desc: string }> = {
   create: { label: '팀 만들기', desc: '새 팀을 만들고 팀장이 되기' },
 };
 
-const INPUT = "w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400";
+const INPUT = "w-full bg-stone-50 border-0 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400";
 
 export default function AuthPage() {
   const router = useRouter();
@@ -52,7 +52,7 @@ export default function AuthPage() {
   const modes: Mode[] = ['login', 'join', 'create'];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-slate-100 flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ background: 'var(--background)' }}>
       <div className="w-full max-w-sm">
 
         {/* Logo */}

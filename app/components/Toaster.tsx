@@ -25,10 +25,10 @@ export function Toaster() {
         visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
       }`}
     >
-      <div className={`flex items-center gap-3 px-4 py-3 rounded-2xl shadow-lg ${
+      <div className={`flex items-center gap-3 px-4 py-3 rounded-2xl shadow-[0_8px_24px_rgba(0,0,0,0.16)] ${
         isError
           ? 'bg-red-600 text-white'
-          : 'bg-gray-900 text-white'
+          : 'bg-stone-900 text-white'
       }`}>
         <span className="text-base shrink-0">{isError ? '⚠️' : '✅'}</span>
         <p className="text-sm font-semibold flex-1">{message}</p>

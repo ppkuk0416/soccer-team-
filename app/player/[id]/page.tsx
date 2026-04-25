@@ -73,7 +73,7 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
                 <div className="flex items-center gap-2 mt-1">
                   <TierBadge tier={player.tier} status={player.status} />
                   {player.position && (
-                    <span className="text-xs bg-slate-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">
+                    <span className="text-xs bg-stone-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">
                       {player.position}
                     </span>
                   )}
@@ -99,12 +99,12 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
 
         {/* Skill bar */}
         {player.status === 'confirmed' && (
-          <div className="mt-4 pt-4 border-t border-slate-50">
+          <div className="mt-4 pt-4 border-t border-stone-50">
             <div className="flex justify-between items-center mb-2">
               <span className="text-xs font-semibold text-gray-500">실력 지수</span>
               <span className="text-xs text-gray-400">{TIER_LABELS[player.tier]}</span>
             </div>
-            <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+            <div className="h-2 bg-stone-100 rounded-full overflow-hidden">
               <div className={`h-full bg-gradient-to-r ${scoreGradient} rounded-full transition-all duration-500`}
                 style={{ width: `${player.score * 10}%` }} />
             </div>
@@ -115,9 +115,9 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
         )}
 
         {role === 'admin' && (
-          <div className="flex gap-2 mt-4 pt-4 border-t border-slate-50">
+          <div className="flex gap-2 mt-4 pt-4 border-t border-stone-50">
             <button onClick={() => setEditing(true)}
-              className="flex-1 text-sm bg-slate-50 text-gray-700 rounded-xl py-2.5 hover:bg-slate-100 transition font-semibold">
+              className="flex-1 text-sm bg-stone-50 text-gray-700 rounded-xl py-2.5 hover:bg-stone-100 transition font-semibold">
               정보 수정
             </button>
             {confirmDelete ? (
@@ -127,7 +127,7 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
                   확인 삭제
                 </button>
                 <button onClick={() => setConfirmDelete(false)}
-                  className="px-3 text-sm bg-slate-100 text-gray-500 rounded-xl py-2.5">
+                  className="px-3 text-sm bg-stone-100 text-gray-500 rounded-xl py-2.5">
                   취소
                 </button>
               </div>
@@ -177,9 +177,9 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
               const s = v?.status && statusMap[v.status as keyof typeof statusMap];
               const d = new Date(e.date);
               return (
-                <div key={e.id} className="flex items-center justify-between py-2.5 border-b border-slate-50 last:border-0">
+                <div key={e.id} className="flex items-center justify-between py-2.5 border-b border-stone-50 last:border-0">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 bg-slate-50 rounded-xl flex flex-col items-center justify-center flex-shrink-0">
+                    <div className="w-9 h-9 bg-stone-50 rounded-xl flex flex-col items-center justify-center flex-shrink-0">
                       <span className="text-xs font-black text-gray-700 leading-none">{d.getDate()}</span>
                       <span className="text-[9px] text-gray-400">{d.getMonth() + 1}월</span>
                     </div>

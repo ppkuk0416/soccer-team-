@@ -7,7 +7,7 @@ export function LoadingScreen() {
   if (initialized) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-100 flex flex-col items-center justify-center">
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center" style={{ background: 'var(--background)' }}>
       <div className="flex flex-col items-center gap-4">
         <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg animate-pulse">
           <span className="text-3xl">⚽</span>

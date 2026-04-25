@@ -68,7 +68,7 @@ export default function AdminPage() {
                 {measuring.map((p) => {
                   const avatarCls = tierAvatarColors(p.tier, p.status);
                   return (
-                    <div key={p.id} className="bg-slate-50 rounded-2xl p-4">
+                    <div key={p.id} className="bg-stone-50 rounded-2xl p-4">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
                           <div className={`w-10 h-10 rounded-xl ${avatarCls} flex items-center justify-center font-black`}>
@@ -136,7 +136,7 @@ export default function AdminPage() {
               </div>
               <div className="space-y-3">
                 {pendingRequests.map((req) => (
-                  <div key={req.id} className="bg-slate-50 rounded-2xl p-4">
+                  <div key={req.id} className="bg-stone-50 rounded-2xl p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="font-bold text-gray-900 text-sm">{req.playerName}</span>
                       <TierBadge tier={req.currentTier} />
@@ -176,7 +176,7 @@ export default function AdminPage() {
           ) : (
             <form onSubmit={handleSubmitRequest} className="space-y-3">
               <select
-                className="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400"
+                className="w-full bg-stone-50 border-0 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400"
                 value={reqPlayerId} onChange={(e) => setReqPlayerId(e.target.value)} required>
                 <option value="">선수 선택...</option>
                 {players.filter((p) => p.status === 'confirmed').map((p) => (
@@ -192,7 +192,7 @@ export default function AdminPage() {
                       {tiers.map((t) => (
                         <button key={t} type="button" onClick={() => setReqTier(t)}
                           className={`text-xs px-2 py-1.5 rounded-xl font-bold flex-1 transition ${
-                            reqTier === t ? 'bg-gray-900 text-white' : 'bg-slate-50 text-gray-500 hover:bg-slate-100'
+                            reqTier === t ? 'bg-gray-900 text-white' : 'bg-stone-50 text-gray-500 hover:bg-stone-100'
                           }`}>
                           {TIER_LABELS[t]}
                         </button>
@@ -203,7 +203,7 @@ export default function AdminPage() {
               </div>
 
               <input
-                className="w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400"
+                className="w-full bg-stone-50 border-0 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400"
                 value={reqReason} onChange={(e) => setReqReason(e.target.value)}
                 placeholder="이유 (선택)" />
 
@@ -222,13 +222,13 @@ export default function AdminPage() {
           <h2 className="font-bold text-gray-900 mb-3">처리 내역</h2>
           <div className="space-y-0">
             {resolvedRequests.map((req) => (
-              <div key={req.id} className="flex items-center justify-between py-2.5 border-b border-slate-50 last:border-0">
+              <div key={req.id} className="flex items-center justify-between py-2.5 border-b border-stone-50 last:border-0">
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-700 font-medium">{req.playerName}</span>
                   <span className="text-xs text-gray-400">{TIER_LABELS[req.currentTier]} → {TIER_LABELS[req.suggestedTier]}</span>
                 </div>
                 <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
-                  req.status === 'approved' ? 'bg-green-50 text-green-600' : 'bg-slate-100 text-gray-400'
+                  req.status === 'approved' ? 'bg-green-50 text-green-600' : 'bg-stone-100 text-gray-400'
                 }`}>
                   {req.status === 'approved' ? '승인' : '거절'}
                 </span>

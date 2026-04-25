@@ -1,6 +1,8 @@
 'use client';
 import { useState, useMemo } from 'react';
-import { useSoccerStore } from '../store/useSupabaseStore';
+import { useSupabaseStore } from '../store/useSupabaseStore';
+
+const INPUT = "w-full bg-stone-50 border-0 rounded-xl px-3.5 py-3 text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-stone-400";
 
 function fmt(month: string) {
   const [y, m] = month.split('-');
@@ -8,7 +10,7 @@ function fmt(month: string) {
 }
 
 export default function DuesPage() {
-  const { players, dues, role, addDue, markDuePaid, removeDue, initMonthlyDues } = useSoccerStore();
+  const { players, dues, role, addDue, markDuePaid, removeDue, initMonthlyDues } = useSupabaseStore();
 
   const now = new Date();
   const defaultMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -20,10 +22,7 @@ export default function DuesPage() {
   const [addAmount, setAddAmount] = useState(30000);
   const [addPlayerId, setAddPlayerId] = useState('');
 
-  const monthDues = useMemo(
-    () => dues.filter((d) => d.month === selectedMonth),
-    [dues, selectedMonth]
-  );
+  const monthDues = useMemo(() => dues.filter((d) => d.month === selectedMonth), [dues, selectedMonth]);
 
   const months = useMemo(() => {
     const set = new Set<string>();
@@ -32,9 +31,10 @@ export default function DuesPage() {
     return [...set].sort((a, b) => b.localeCompare(a));
   }, [dues, defaultMonth]);
 
-  const paidCount  = monthDues.filter((d) => d.paid).length;
-  const totalAmt   = monthDues.reduce((s, d) => s + d.amount, 0);
-  const paidAmt    = monthDues.filter((d) => d.paid).reduce((s, d) => s + d.amount, 0);
+  const paidCount = monthDues.filter((d) => d.paid).length;
+  const totalAmt  = monthDues.reduce((s, d) => s + d.amount, 0);
+  const paidAmt   = monthDues.filter((d) => d.paid).reduce((s, d) => s + d.amount, 0);
+  const paidPct   = monthDues.length > 0 ? Math.round((paidCount / monthDues.length) * 100) : 0;
 
   async function handleInit() {
     await initMonthlyDues(selectedMonth, defaultAmount);
@@ -52,21 +52,21 @@ export default function DuesPage() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">회비 장부</h1>
-          <p className="text-gray-500 text-sm mt-0.5">팀 회비 납부 현황을 관리하세요</p>
+          <h1 className="text-xl font-black text-stone-900">회비 장부</h1>
+          <p className="text-stone-400 text-sm mt-0.5">팀 회비 납부 현황</p>
         </div>
         {role === 'admin' && (
           <div className="flex gap-2">
-            <button onClick={() => setShowInit(!showInit)}
-              className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-3 py-2 rounded-xl transition">
+            <button onClick={() => { setShowInit(!showInit); setShowAdd(false); }}
+              className={`text-xs font-semibold px-3 py-2 rounded-xl transition ${showInit ? 'bg-stone-200 text-stone-700' : 'bg-stone-100 hover:bg-stone-200 text-stone-700'}`}>
               일괄 등록
             </button>
-            <button onClick={() => setShowAdd(!showAdd)}
-              className="text-xs bg-green-600 hover:bg-green-700 text-white font-semibold px-3 py-2 rounded-xl transition">
-              + 개별 추가
+            <button onClick={() => { setShowAdd(!showAdd); setShowInit(false); }}
+              className={`text-xs font-bold px-3 py-2 rounded-xl transition ${showAdd ? 'bg-stone-200 text-stone-700' : 'bg-green-600 hover:bg-green-700 text-white'}`}>
+              + 추가
             </button>
           </div>
         )}
@@ -76,8 +76,10 @@ export default function DuesPage() {
       <div className="flex gap-2 overflow-x-auto pb-1">
         {months.map((m) => (
           <button key={m} onClick={() => setSelectedMonth(m)}
-            className={`flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full border transition ${
-              selectedMonth === m ? 'bg-gray-900 text-white border-gray-900' : 'border-gray-200 text-gray-500'
+            className={`flex-shrink-0 text-xs font-semibold px-3.5 py-1.5 rounded-full transition ${
+              selectedMonth === m
+                ? 'bg-stone-900 text-white'
+                : 'bg-white text-stone-500 shadow-sm'
             }`}>
             {fmt(m)}
           </button>
@@ -86,17 +88,18 @@ export default function DuesPage() {
 
       {/* 일괄 등록 패널 */}
       {showInit && role === 'admin' && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 space-y-3">
-          <p className="text-sm font-semibold text-gray-700">{fmt(selectedMonth)} 일괄 등록</p>
-          <p className="text-xs text-gray-400">현재 등록된 선수 {players.length}명에게 아래 금액으로 회비를 일괄 등록합니다. 이미 등록된 선수는 건너뜁니다.</p>
+        <div className="bg-white rounded-2xl shadow-sm p-5 space-y-3">
+          <p className="text-sm font-bold text-stone-800">{fmt(selectedMonth)} 일괄 등록</p>
+          <p className="text-xs text-stone-400">
+            등록된 선수 {players.length}명에게 아래 금액으로 일괄 등록합니다. 이미 등록된 선수는 건너뜁니다.
+          </p>
           <div className="flex gap-2 items-center">
-            <input type="number" step="1000"
-              className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400"
+            <input type="number" step="1000" className={INPUT}
               value={defaultAmount} onChange={(e) => setDefaultAmount(Number(e.target.value))} />
-            <span className="text-sm text-gray-500">원</span>
+            <span className="text-sm text-stone-500 shrink-0">원</span>
           </div>
           <button onClick={handleInit}
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-xl text-sm transition">
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl text-sm transition">
             {players.length}명 일괄 등록
           </button>
         </div>
@@ -104,58 +107,49 @@ export default function DuesPage() {
 
       {/* 개별 추가 패널 */}
       {showAdd && role === 'admin' && (
-        <form onSubmit={handleAdd} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 space-y-3">
-          <p className="text-sm font-semibold text-gray-700">개별 추가</p>
-          <select
-            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400"
-            value={addPlayerId} onChange={(e) => setAddPlayerId(e.target.value)}>
+        <form onSubmit={handleAdd} className="bg-white rounded-2xl shadow-sm p-5 space-y-3">
+          <p className="text-sm font-bold text-stone-800">개별 추가</p>
+          <select className={INPUT} value={addPlayerId} onChange={(e) => setAddPlayerId(e.target.value)}>
             <option value="">선수 선택 (직접 입력 가능)</option>
             {players.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
           {!addPlayerId && (
-            <input className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400"
+            <input className={INPUT}
               value={addName} onChange={(e) => setAddName(e.target.value)} placeholder="이름 직접 입력" />
           )}
           <div className="flex gap-2 items-center">
-            <input type="number" step="1000"
-              className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400"
+            <input type="number" step="1000" className={INPUT}
               value={addAmount} onChange={(e) => setAddAmount(Number(e.target.value))} />
-            <span className="text-sm text-gray-500">원</span>
+            <span className="text-sm text-stone-500 shrink-0">원</span>
           </div>
-          <button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-xl text-sm transition">
+          <button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl text-sm transition">
             추가
           </button>
         </form>
       )}
 
-      {/* 요약 카드 */}
+      {/* 요약 */}
       {monthDues.length > 0 && (
-        <div className="grid grid-cols-3 gap-3">
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-3 text-center">
-            <div className="text-xl font-black text-green-600">{paidCount}</div>
-            <div className="text-xs text-gray-400 mt-0.5">납부</div>
+        <div className="bg-white rounded-2xl shadow-sm p-4">
+          <div className="grid grid-cols-3 gap-4 text-center mb-4">
+            <div>
+              <div className="text-2xl font-black text-green-600">{paidCount}</div>
+              <div className="text-xs text-stone-400 mt-0.5">납부</div>
+            </div>
+            <div>
+              <div className="text-2xl font-black text-red-500">{monthDues.length - paidCount}</div>
+              <div className="text-xs text-stone-400 mt-0.5">미납</div>
+            </div>
+            <div>
+              <div className="text-lg font-black text-stone-900">{(paidAmt / 10000).toFixed(1)}만</div>
+              <div className="text-xs text-stone-400 mt-0.5">/ {(totalAmt / 10000).toFixed(1)}만원</div>
+            </div>
           </div>
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-3 text-center">
-            <div className="text-xl font-black text-red-500">{monthDues.length - paidCount}</div>
-            <div className="text-xs text-gray-400 mt-0.5">미납</div>
-          </div>
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-3 text-center">
-            <div className="text-base font-black text-gray-900">{(paidAmt / 10000).toFixed(1)}만</div>
-            <div className="text-xs text-gray-400 mt-0.5">/ {(totalAmt / 10000).toFixed(1)}만원</div>
-          </div>
-        </div>
-      )}
-
-      {/* 진행 바 */}
-      {monthDues.length > 0 && (
-        <div>
-          <div className="flex justify-between text-xs text-gray-400 mb-1">
-            <span>납부율</span>
-            <span>{monthDues.length > 0 ? Math.round((paidCount / monthDues.length) * 100) : 0}%</span>
-          </div>
-          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div className="h-full bg-green-400 rounded-full transition-all"
-              style={{ width: `${monthDues.length > 0 ? (paidCount / monthDues.length) * 100 : 0}%` }} />
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-2 bg-stone-100 rounded-full overflow-hidden">
+              <div className="h-full bg-green-500 rounded-full transition-all duration-500" style={{ width: `${paidPct}%` }} />
+            </div>
+            <span className="text-xs font-bold text-stone-500 w-8 text-right">{paidPct}%</span>
           </div>
         </div>
       )}
@@ -164,40 +158,45 @@ export default function DuesPage() {
       {monthDues.length === 0 ? (
         <div className="text-center py-16">
           <p className="text-3xl mb-3">💰</p>
-          <p className="text-gray-500 text-sm">{fmt(selectedMonth)} 회비 내역이 없습니다</p>
-          {role === 'admin' && <p className="text-gray-400 text-xs mt-1">일괄 등록으로 선수 전체에 한 번에 추가할 수 있어요</p>}
+          <p className="text-stone-500 text-sm font-medium">{fmt(selectedMonth)} 회비 내역이 없습니다</p>
+          {role === 'admin' && (
+            <p className="text-stone-400 text-xs mt-1">일괄 등록으로 전체 선수에게 한 번에 추가하세요</p>
+          )}
         </div>
       ) : (
         <div className="space-y-2">
-          {/* 미납 먼저 */}
           {[...monthDues].sort((a, b) => Number(a.paid) - Number(b.paid)).map((due) => (
-            <div key={due.id} className={`bg-white rounded-2xl border shadow-sm px-4 py-3 flex items-center justify-between ${
-              due.paid ? 'border-green-100' : 'border-red-100'
-            }`}>
+            <div key={due.id} className="bg-white rounded-2xl shadow-sm px-4 py-3.5 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold flex-shrink-0 ${
                   due.paid ? 'bg-green-100 text-green-700' : 'bg-red-50 text-red-500'
                 }`}>
                   {due.paid ? '✓' : '!'}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-900">{due.playerName}</p>
-                  <p className="text-xs text-gray-400">{due.amount.toLocaleString()}원
-                    {due.paid && due.paidAt && <span> · {new Date(due.paidAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}</span>}
+                  <p className="text-sm font-semibold text-stone-900">{due.playerName}</p>
+                  <p className="text-xs text-stone-400">
+                    {due.amount.toLocaleString()}원
+                    {due.paid && due.paidAt && (
+                      <span> · {new Date(due.paidAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}</span>
+                    )}
                   </p>
                 </div>
               </div>
               {role === 'admin' && (
                 <div className="flex items-center gap-2">
                   <button onClick={() => markDuePaid(due.id, !due.paid)}
-                    className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition ${
+                    className={`text-xs font-semibold px-3 py-1.5 rounded-xl transition ${
                       due.paid
-                        ? 'border-gray-200 text-gray-400 hover:border-red-200 hover:text-red-400'
-                        : 'border-green-400 text-green-600 bg-green-50 hover:bg-green-100'
+                        ? 'bg-stone-100 text-stone-400 hover:bg-red-50 hover:text-red-400'
+                        : 'bg-green-50 text-green-600 hover:bg-green-100'
                     }`}>
                     {due.paid ? '취소' : '납부'}
                   </button>
-                  <button onClick={() => removeDue(due.id)} className="text-gray-300 hover:text-red-400 transition p-1 text-xs">✕</button>
+                  <button onClick={() => removeDue(due.id)}
+                    className="text-stone-300 hover:text-red-400 transition p-1 text-sm">
+                    ✕
+                  </button>
                 </div>
               )}
             </div>
