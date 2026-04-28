@@ -29,10 +29,10 @@ function IconWallet() {
   );
 }
 
-function IconBolt() {
+function IconShuffle() {
   return (
     <svg className="w-[22px] h-[22px]" fill="none" stroke="currentColor" strokeWidth={1.75} viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
     </svg>
   );
 }
@@ -49,7 +49,7 @@ const NAV: NavItem[] = [
   { href: '/team',      label: '팀',   icon: <IconUsers /> },
   { href: '/attend',    label: '출석', icon: <IconCalendar /> },
   { href: '/dues',      label: '회비', icon: <IconWallet /> },
-  { href: '/challenge', label: '매칭', icon: <IconBolt /> },
+  { href: '/matcher',   label: '팀나누기', icon: <IconShuffle /> },
   { href: '/matches',   label: '기록', icon: <IconChart /> },
 ];
 
@@ -57,8 +57,7 @@ export function BottomNav() {
   const path = usePathname();
   const { events, challenges, teamId } = useSupabaseStore();
   const openEvents = events.filter((e) => e.isOpen).length;
-  const incomingChallenges = challenges.filter((c) => c.targetTeamId === teamId && c.status === 'pending').length;
-  const badges: Record<string, number> = { '/attend': openEvents, '/challenge': incomingChallenges };
+  const badges: Record<string, number> = { '/attend': openEvents };
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 px-3 pb-safe-or-4" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 12px)' }}>
