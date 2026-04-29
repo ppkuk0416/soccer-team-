@@ -7,9 +7,11 @@ export function StoreInitializer() {
   const { init, initialized } = useSupabaseStore();
 
   useEffect(() => {
+    const sb = createClient();
+    if (!sb) return;
+
     if (!initialized) init();
 
-    const sb = createClient();
     const { data: { subscription } } = sb.auth.onAuthStateChange((event) => {
       if (event === 'TOKEN_REFRESHED') init();
       if (event === 'SIGNED_OUT') {
