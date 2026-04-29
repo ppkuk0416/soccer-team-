@@ -61,19 +61,19 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 px-3 pb-safe-or-4" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 12px)' }}>
-      <div className="max-w-md mx-auto bg-white/90 backdrop-blur-md rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.10),0_1px_4px_rgba(0,0,0,0.06)] border border-stone-200/50 flex items-center p-1.5 gap-0.5">
+      <div className="max-w-md mx-auto bg-white/90 backdrop-blur-md rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.10),0_1px_4px_rgba(0,0,0,0.06)] border border-gray-200/50 flex items-center p-1.5 gap-0.5">
         {NAV.map(({ href, label, icon }) => {
           const active = path === href || path.startsWith(href + '/');
           const badge  = badges[href] ?? 0;
           return (
             <Link key={href} href={href}
               className={`flex-1 flex flex-col items-center justify-center py-2 rounded-xl transition-all duration-150 relative select-none ${
-                active ? 'bg-green-600' : 'hover:bg-stone-50 active:bg-stone-100'
+                active ? 'bg-green-600' : 'hover:bg-gray-50 active:bg-gray-100'
               }`}>
-              <span className={`transition-colors ${active ? 'text-white' : 'text-stone-400'}`}>
+              <span className={`transition-colors ${active ? 'text-white' : 'text-gray-400'}`}>
                 {icon}
               </span>
-              <span className={`text-[10px] font-semibold mt-0.5 transition-colors ${active ? 'text-white' : 'text-stone-400'}`}>
+              <span className={`text-[10px] font-semibold mt-0.5 transition-colors ${active ? 'text-white' : 'text-gray-400'}`}>
                 {label}
               </span>
               {badge > 0 && (

@@ -59,7 +59,7 @@ function TeamResultCard({ teams, diff }: { teams: [Team | QuickTeam, Team | Quic
             <div key={i} className={`rounded-2xl p-4 ${i === 0 ? 'bg-blue-50' : 'bg-red-50'}`}>
               <div className="flex justify-between items-center mb-3">
                 <span className={`font-black text-sm ${i === 0 ? 'text-blue-700' : 'text-red-700'}`}>{team.name}</span>
-                <span className="text-xs font-semibold text-stone-400">{total}pt</span>
+                <span className="text-xs font-semibold text-gray-400">{total}pt</span>
               </div>
               <div className="space-y-1.5">
                 {[...playerList].sort((a, b) => {
@@ -69,7 +69,7 @@ function TeamResultCard({ teams, diff }: { teams: [Team | QuickTeam, Team | Quic
                 }).map((p: { id: string; name: string; score?: number | null; tier?: Tier; status?: string }) => (
                   <div key={p.id} className="flex justify-between items-center text-xs">
                     <span className="text-gray-700 font-medium">{p.name}</span>
-                    <span className="text-stone-400 font-bold">
+                    <span className="text-gray-400 font-bold">
                       {p.score !== undefined && p.score !== null ? p.score : '?'}
                     </span>
                   </div>
@@ -111,26 +111,26 @@ function RegisteredMatcher({ presetIds }: { presetIds: string[] }) {
 
       {/* Team name inputs */}
       <div className="flex gap-2">
-        <input className="flex-1 bg-stone-50 border-0 rounded-xl px-3.5 py-3 text-sm font-bold text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-blue-400"
+        <input className="flex-1 bg-gray-50 border-0 rounded-xl px-3.5 py-3 text-sm font-bold text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-blue-400"
           value={nameA} onChange={(e) => setNameA(e.target.value)} />
-        <span className="self-center text-stone-300 font-black text-sm">vs</span>
-        <input className="flex-1 bg-stone-50 border-0 rounded-xl px-3.5 py-3 text-sm font-bold text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-red-400"
+        <span className="self-center text-gray-300 font-black text-sm">vs</span>
+        <input className="flex-1 bg-gray-50 border-0 rounded-xl px-3.5 py-3 text-sm font-bold text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-red-400"
           value={nameB} onChange={(e) => setNameB(e.target.value)} />
       </div>
 
       {/* Player list */}
       <div>
         <div className="flex justify-between items-center mb-2.5">
-          <span className="text-xs font-bold text-stone-400">{selected.size}명 선택</span>
+          <span className="text-xs font-bold text-gray-400">{selected.size}명 선택</span>
           <div className="flex gap-3">
             <button onClick={() => { setSelected(new Set(players.map(p => p.id))); setResult(null); }}
               className="text-xs text-green-600 font-semibold">전체 선택</button>
             <button onClick={() => { setSelected(new Set()); setResult(null); }}
-              className="text-xs text-stone-400 font-semibold">해제</button>
+              className="text-xs text-gray-400 font-semibold">해제</button>
           </div>
         </div>
         {players.length === 0 ? (
-          <div className="text-center py-12 text-stone-400 text-sm">
+          <div className="text-center py-12 text-gray-400 text-sm">
             팀 탭에서 선수를 먼저 추가해주세요
           </div>
         ) : (
@@ -146,7 +146,7 @@ function RegisteredMatcher({ presetIds }: { presetIds: string[] }) {
                       : 'bg-white shadow-sm border border-transparent'
                   }`}>
                   <div className={`w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center transition ${
-                    isSelected ? 'bg-green-500 border-green-500' : 'border-stone-300'
+                    isSelected ? 'bg-green-500 border-green-500' : 'border-gray-300'
                   }`}>
                     {isSelected && (
                       <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
@@ -161,7 +161,7 @@ function RegisteredMatcher({ presetIds }: { presetIds: string[] }) {
                     <span className="font-bold text-gray-900 text-sm">{p.name}</span>
                     <div className="mt-0.5"><TierBadge tier={p.tier} status={p.status} /></div>
                   </div>
-                  <span className={`text-xl font-black shrink-0 ${p.status === 'measuring' ? 'text-stone-200' : 'text-gray-700'}`}>
+                  <span className={`text-xl font-black shrink-0 ${p.status === 'measuring' ? 'text-gray-200' : 'text-gray-700'}`}>
                     {p.status === 'measuring' ? '—' : p.score}
                   </span>
                 </button>
@@ -177,7 +177,7 @@ function RegisteredMatcher({ presetIds }: { presetIds: string[] }) {
           if (chosen.length >= 2) setResult(balanceTeams(chosen, nameA, nameB));
         }}
         disabled={selected.size < 2}
-        className="w-full bg-stone-900 hover:bg-stone-800 disabled:bg-stone-100 disabled:text-stone-300 text-white font-black py-4 rounded-2xl transition text-base shadow-sm">
+        className="w-full bg-[#1C1C1E] hover:bg-[#2C2C2E] disabled:bg-gray-100 disabled:text-gray-300 text-white font-black py-4 rounded-2xl transition text-base shadow-sm">
         팀 나누기
       </button>
 
@@ -187,7 +187,7 @@ function RegisteredMatcher({ presetIds }: { presetIds: string[] }) {
           <button onClick={() => {
             const chosen = players.filter(p => selected.has(p.id));
             if (chosen.length >= 2) setResult(balanceTeams(chosen, nameA, nameB));
-          }} className="w-full text-sm text-stone-500 border border-stone-200 py-3 rounded-xl hover:bg-stone-50 transition font-semibold">
+          }} className="w-full text-sm text-gray-500 border border-gray-200 py-3 rounded-xl hover:bg-gray-50 transition font-semibold">
             다시 섞기
           </button>
         </>
@@ -226,10 +226,10 @@ function QuickMatcher() {
       </div>
 
       <div className="flex gap-2">
-        <input className="flex-1 bg-stone-50 border-0 rounded-xl px-3.5 py-3 text-sm font-bold text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-blue-400"
+        <input className="flex-1 bg-gray-50 border-0 rounded-xl px-3.5 py-3 text-sm font-bold text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-blue-400"
           value={nameA} onChange={(e) => setNameA(e.target.value)} />
-        <span className="self-center text-stone-300 font-black text-sm">vs</span>
-        <input className="flex-1 bg-stone-50 border-0 rounded-xl px-3.5 py-3 text-sm font-bold text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-red-400"
+        <span className="self-center text-gray-300 font-black text-sm">vs</span>
+        <input className="flex-1 bg-gray-50 border-0 rounded-xl px-3.5 py-3 text-sm font-bold text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-red-400"
           value={nameB} onChange={(e) => setNameB(e.target.value)} />
       </div>
 
@@ -237,7 +237,7 @@ function QuickMatcher() {
       <div className="bg-white rounded-2xl shadow-sm p-4 space-y-3">
         <div className="flex gap-2">
           <input
-            className="flex-1 bg-stone-50 border-0 rounded-xl px-3.5 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-400 placeholder:text-stone-400"
+            className="flex-1 bg-gray-50 border-0 rounded-xl px-3.5 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-400 placeholder:text-gray-400"
             value={nameInput}
             onChange={(e) => setNameInput(e.target.value)}
             onCompositionStart={() => { composingRef.current = true; }}
@@ -246,7 +246,7 @@ function QuickMatcher() {
             placeholder="이름 입력 후 엔터"
           />
           <button onClick={addPlayer}
-            className="w-12 bg-stone-900 hover:bg-stone-800 text-white font-black rounded-xl transition text-lg flex items-center justify-center">
+            className="w-12 bg-[#1C1C1E] hover:bg-[#2C2C2E] text-white font-black rounded-xl transition text-lg flex items-center justify-center">
             +
           </button>
         </div>
@@ -254,7 +254,7 @@ function QuickMatcher() {
         {/* Skill level */}
         <div className="space-y-2">
           <label className="flex items-center gap-2 cursor-pointer" onClick={() => setUseScore(v => !v)}>
-            <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition ${useScore ? 'bg-green-500 border-green-500' : 'border-stone-300'}`}>
+            <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition ${useScore ? 'bg-green-500 border-green-500' : 'border-gray-300'}`}>
               {useScore && <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
             </div>
             <span className="text-xs text-gray-600 font-semibold">실력 수준 반영</span>
@@ -264,7 +264,7 @@ function QuickMatcher() {
               {QUICK_TIERS.map(({ tier, label, color }) => (
                 <button key={tier} onClick={() => setTierInput(tier)}
                   className={`flex-1 py-2 rounded-xl text-xs font-bold transition ${
-                    tierInput === tier ? 'bg-stone-900 text-white' : `${color}`
+                    tierInput === tier ? 'bg-[#1C1C1E] text-white' : `${color}`
                   }`}>
                   {label}
                 </button>
@@ -278,19 +278,19 @@ function QuickMatcher() {
       {players.length > 0 && (
         <div>
           <div className="flex justify-between items-center mb-2">
-            <span className="text-xs font-bold text-stone-400">{players.length}명</span>
+            <span className="text-xs font-bold text-gray-400">{players.length}명</span>
             <button onClick={() => { setPlayers([]); setResult(null); }}
-              className="text-xs text-stone-400 hover:text-red-500 font-semibold transition">
+              className="text-xs text-gray-400 hover:text-red-500 font-semibold transition">
               전체 삭제
             </button>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {players.map((p) => (
-              <div key={p.id} className="flex items-center gap-1.5 bg-white shadow-sm border border-stone-100 rounded-xl px-3 py-1.5">
+              <div key={p.id} className="flex items-center gap-1.5 bg-white shadow-sm border border-gray-200 rounded-xl px-3 py-1.5">
                 <span className="text-sm font-semibold text-gray-800">{p.name}</span>
-                {p.score !== null && <span className="text-xs text-stone-400 font-bold">{p.score}</span>}
+                {p.score !== null && <span className="text-xs text-gray-400 font-bold">{p.score}</span>}
                 <button onClick={() => { setPlayers(prev => prev.filter(x => x.id !== p.id)); setResult(null); }}
-                  className="text-stone-300 hover:text-red-400 transition ml-0.5">
+                  className="text-gray-300 hover:text-red-400 transition ml-0.5">
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
@@ -304,7 +304,7 @@ function QuickMatcher() {
       <button
         onClick={() => players.length >= 2 && setResult(balanceQuick(players, nameA, nameB))}
         disabled={players.length < 2}
-        className="w-full bg-stone-900 hover:bg-stone-800 disabled:bg-stone-100 disabled:text-stone-300 text-white font-black py-4 rounded-2xl transition text-base">
+        className="w-full bg-[#1C1C1E] hover:bg-[#2C2C2E] disabled:bg-gray-100 disabled:text-gray-300 text-white font-black py-4 rounded-2xl transition text-base">
         팀 나누기
       </button>
 
@@ -312,7 +312,7 @@ function QuickMatcher() {
         <>
           <TeamResultCard teams={result} diff={diff} />
           <button onClick={() => setResult(balanceQuick(players, nameA, nameB))}
-            className="w-full text-sm text-stone-500 border border-stone-200 py-3 rounded-xl hover:bg-stone-50 transition font-semibold">
+            className="w-full text-sm text-gray-500 border border-gray-200 py-3 rounded-xl hover:bg-gray-50 transition font-semibold">
             다시 섞기
           </button>
         </>
@@ -332,20 +332,20 @@ function MatcherContent() {
     <div className="space-y-4">
       <div>
         <h1 className="text-xl font-black text-gray-900">팀 나누기</h1>
-        <p className="text-stone-400 text-sm mt-0.5">균형 잡힌 팀을 자동 구성합니다</p>
+        <p className="text-gray-400 text-sm mt-0.5">균형 잡힌 팀을 자동 구성합니다</p>
       </div>
 
       {/* Mode tabs */}
-      <div className="flex bg-stone-100 rounded-2xl p-1">
+      <div className="flex bg-gray-100 rounded-2xl p-1">
         <button onClick={() => setMode('registered')}
           className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition ${
-            mode === 'registered' ? 'bg-white shadow-sm text-gray-900' : 'text-stone-400'
+            mode === 'registered' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-400'
           }`}>
           등록 선수
         </button>
         <button onClick={() => setMode('quick')}
           className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition ${
-            mode === 'quick' ? 'bg-white shadow-sm text-gray-900' : 'text-stone-400'
+            mode === 'quick' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-400'
           }`}>
           즉석 입력
         </button>

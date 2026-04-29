@@ -1,13 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --background: #F5F3EF;
-  --foreground: #1C1917;
+  --background: #F2F2F7;
+  --foreground: #000000;
   --card: #FFFFFF;
-  --muted: #78716C;
-  --muted-bg: #F0EDE8;
-  --border: #E7E4DF;
+  --muted: #8E8E93;
+  --muted-bg: #E5E5EA;
+  --border: #C6C6C8;
+  --separator: rgba(60,60,67,0.12);
   --accent: #16A34A;
+  --accent-ios: #34C759;
+  --ios-dark: #1C1C1E;
+  --ios-dark-2: #2C2C2E;
+  --ios-dark-3: #3A3A3C;
 }
 
 @theme inline {
@@ -20,12 +25,23 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Smooth tap highlight off on mobile */
 * {
   -webkit-tap-highlight-color: transparent;
+}
+
+/* iOS-style grouped inset sections */
+.ios-group {
+  background: #FFFFFF;
+  border-radius: 12px;
+}
+
+/* Number display — tighter tracking for Apple feel */
+.num-display {
+  font-feature-settings: 'tnum' 1, 'lnum' 1;
+  letter-spacing: -0.02em;
 }

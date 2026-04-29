@@ -28,7 +28,7 @@ export function Toaster() {
       <div className={`flex items-center gap-3 px-4 py-3 rounded-2xl shadow-[0_8px_24px_rgba(0,0,0,0.16)] ${
         isError
           ? 'bg-red-600 text-white'
-          : 'bg-stone-900 text-white'
+          : 'bg-[#1C1C1E] text-white'
       }`}>
         <span className="text-base shrink-0">{isError ? '⚠️' : '✅'}</span>
         <p className="text-sm font-semibold flex-1">{message}</p>

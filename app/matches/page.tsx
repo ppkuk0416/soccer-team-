@@ -13,7 +13,7 @@ function getMvpResult(votes: MatchRecord['mvpVotes']) {
   return [...counts.values()].sort((a, b) => b.count - a.count)[0];
 }
 
-const INPUT = "w-full bg-stone-50 border-0 rounded-xl px-4 py-3.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-stone-400";
+const INPUT = "w-full bg-gray-50 border-0 rounded-xl px-4 py-3.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400";
 
 export default function MatchesPage() {
   const { players, matchRecords, role, addMatchRecord, removeMatchRecord, voteForMvp, closeMvpVoting, incrementMatchCount } = useSupabaseStore();
@@ -56,12 +56,12 @@ export default function MatchesPage() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-xl font-black text-gray-900">경기 기록</h1>
-          <p className="text-stone-400 text-sm mt-0.5">팀의 공식 경기 결과</p>
+          <p className="text-gray-400 text-sm mt-0.5">팀의 공식 경기 결과</p>
         </div>
         {role === 'admin' && (
           <button onClick={() => setShowForm(!showForm)}
             className={`font-bold px-4 py-2 rounded-xl transition text-sm shadow-sm ${
-              showForm ? 'bg-stone-100 text-gray-600' : 'bg-green-600 hover:bg-green-700 text-white'
+              showForm ? 'bg-gray-100 text-gray-600' : 'bg-green-600 hover:bg-green-700 text-white'
             }`}>
             {showForm ? '취소' : '+ 기록'}
           </button>
@@ -70,37 +70,37 @@ export default function MatchesPage() {
 
       {/* Season record card */}
       {matchRecords.length > 0 && (
-        <div className="bg-stone-900 rounded-2xl p-5 text-white">
-          <p className="text-stone-500 text-[10px] font-bold uppercase tracking-widest mb-4">시즌 전적</p>
+        <div className="bg-[#1C1C1E] rounded-2xl p-5 text-white">
+          <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-4">시즌 전적</p>
           <div className="flex items-center">
             <div className="flex-1 text-center">
               <div className="text-4xl font-black text-green-400">{wins}</div>
-              <div className="text-stone-600 text-xs font-bold mt-1">승</div>
+              <div className="text-gray-600 text-xs font-bold mt-1">승</div>
             </div>
-            <div className="w-px h-12 bg-stone-800" />
+            <div className="w-px h-12 bg-[#2C2C2E]" />
             <div className="flex-1 text-center">
-              <div className="text-4xl font-black text-stone-400">{draws}</div>
-              <div className="text-stone-600 text-xs font-bold mt-1">무</div>
+              <div className="text-4xl font-black text-gray-400">{draws}</div>
+              <div className="text-gray-600 text-xs font-bold mt-1">무</div>
             </div>
-            <div className="w-px h-12 bg-stone-800" />
+            <div className="w-px h-12 bg-[#2C2C2E]" />
             <div className="flex-1 text-center">
               <div className="text-4xl font-black text-red-400">{losses}</div>
-              <div className="text-stone-600 text-xs font-bold mt-1">패</div>
+              <div className="text-gray-600 text-xs font-bold mt-1">패</div>
             </div>
-            <div className="w-px h-12 bg-stone-800" />
+            <div className="w-px h-12 bg-[#2C2C2E]" />
             <div className="flex-1 text-center">
-              <div className="text-xl font-black">{totalFor}<span className="text-stone-600 text-sm">:</span>{totalAgainst}</div>
-              <div className="text-stone-600 text-xs font-bold mt-1">득실</div>
+              <div className="text-xl font-black">{totalFor}<span className="text-gray-600 text-sm">:</span>{totalAgainst}</div>
+              <div className="text-gray-600 text-xs font-bold mt-1">득실</div>
             </div>
           </div>
           <div className="mt-4">
-            <div className="flex justify-between text-[10px] text-stone-600 mb-1.5 font-bold">
+            <div className="flex justify-between text-[10px] text-gray-600 mb-1.5 font-bold">
               <span>승률 {Math.round((wins / matchRecords.length) * 100)}%</span>
               <span>{matchRecords.length}경기</span>
             </div>
-            <div className="h-1.5 bg-stone-800 rounded-full overflow-hidden flex">
+            <div className="h-1.5 bg-[#2C2C2E] rounded-full overflow-hidden flex">
               <div className="h-full bg-green-500" style={{ width: `${(wins / matchRecords.length) * 100}%` }} />
-              <div className="h-full bg-stone-600" style={{ width: `${(draws / matchRecords.length) * 100}%` }} />
+              <div className="h-full bg-[#48484A]" style={{ width: `${(draws / matchRecords.length) * 100}%` }} />
               <div className="h-full bg-red-500/60" style={{ width: `${(losses / matchRecords.length) * 100}%` }} />
             </div>
           </div>
@@ -134,21 +134,21 @@ export default function MatchesPage() {
           <input type="date" className={INPUT} value={date} onChange={(e) => setDate(e.target.value)} />
 
           <div className="flex gap-2">
-            <input className="flex-1 bg-stone-50 border-0 rounded-xl px-3.5 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400 text-center font-bold"
+            <input className="flex-1 bg-gray-50 border-0 rounded-xl px-3.5 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400 text-center font-bold"
               value={teamAName} onChange={(e) => setTeamAName(e.target.value)} />
-            <span className="self-center text-stone-300 font-black text-sm">vs</span>
-            <input className="flex-1 bg-stone-50 border-0 rounded-xl px-3.5 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-red-400 text-center font-bold"
+            <span className="self-center text-gray-300 font-black text-sm">vs</span>
+            <input className="flex-1 bg-gray-50 border-0 rounded-xl px-3.5 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-red-400 text-center font-bold"
               value={teamBName} onChange={(e) => setTeamBName(e.target.value)} />
           </div>
 
-          <div className="bg-stone-50 rounded-2xl p-4">
+          <div className="bg-gray-50 rounded-2xl p-4">
             <div className="flex items-center justify-center gap-6">
               <div className="text-center">
                 <p className="text-xs text-blue-500 font-bold mb-2">{teamAName}</p>
                 <input type="number" min={0} value={scoreA} onChange={(e) => setScoreA(Number(e.target.value))}
                   className="w-16 h-16 text-center text-3xl font-black text-gray-900 bg-white rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
               </div>
-              <span className="text-stone-300 text-3xl font-black mt-5">:</span>
+              <span className="text-gray-300 text-3xl font-black mt-5">:</span>
               <div className="text-center">
                 <p className="text-xs text-red-400 font-bold mb-2">{teamBName}</p>
                 <input type="number" min={0} value={scoreB} onChange={(e) => setScoreB(Number(e.target.value))}
@@ -159,14 +159,14 @@ export default function MatchesPage() {
 
           <div>
             <div className="flex justify-between items-center mb-2">
-              <p className="text-xs font-bold text-stone-400 uppercase tracking-wide">참여 선수</p>
-              <span className="text-xs text-stone-400">{selectedIds.size}명 선택</span>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">참여 선수</p>
+              <span className="text-xs text-gray-400">{selectedIds.size}명 선택</span>
             </div>
             <div className="grid grid-cols-2 gap-1.5">
               {sortedPlayers.map((p) => (
                 <button key={p.id} type="button" onClick={() => togglePlayer(p.id)}
                   className={`flex items-center justify-between text-xs px-3.5 py-2.5 rounded-xl font-semibold transition ${
-                    selectedIds.has(p.id) ? 'bg-green-600 text-white' : 'bg-stone-100 text-gray-600 hover:bg-stone-200'
+                    selectedIds.has(p.id) ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}>
                   <span>{p.name}</span>
                   {selectedIds.has(p.id) && (
@@ -180,7 +180,7 @@ export default function MatchesPage() {
           </div>
 
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="경기 메모 (선택)"
-            className="w-full bg-stone-50 border-0 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400 resize-none h-16 placeholder:text-stone-400" />
+            className="w-full bg-gray-50 border-0 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400 resize-none h-16 placeholder:text-gray-400" />
 
           <button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-xl transition">
             저장 & MVP 투표 시작
@@ -191,13 +191,13 @@ export default function MatchesPage() {
       {/* Empty state */}
       {matchRecords.length === 0 && !showForm && (
         <div className="bg-white rounded-2xl shadow-sm text-center py-20">
-          <div className="w-16 h-16 bg-stone-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-stone-300" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+          <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5" />
             </svg>
           </div>
           <p className="text-gray-500 font-bold">경기 기록이 없습니다</p>
-          <p className="text-stone-400 text-sm mt-1">첫 경기 결과를 기록해보세요</p>
+          <p className="text-gray-400 text-sm mt-1">첫 경기 결과를 기록해보세요</p>
         </div>
       )}
 
@@ -212,25 +212,25 @@ export default function MatchesPage() {
 
           return (
             <div key={m.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
-              <div className={`h-1 ${isWin ? 'bg-green-500' : isDraw ? 'bg-stone-300' : 'bg-red-400'}`} />
+              <div className={`h-1 ${isWin ? 'bg-green-500' : isDraw ? 'bg-gray-300' : 'bg-red-400'}`} />
               <div className="p-4">
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="font-black text-gray-900">{m.title}</h3>
-                    <p className="text-xs text-stone-400 mt-0.5">
+                    <p className="text-xs text-gray-400 mt-0.5">
                       {new Date(m.date).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`text-xs font-black px-2.5 py-1 rounded-lg ${
                       isWin ? 'bg-green-100 text-green-700' :
-                      isDraw ? 'bg-stone-100 text-stone-500' :
+                      isDraw ? 'bg-gray-100 text-gray-500' :
                       'bg-red-50 text-red-500'
                     }`}>
                       {isWin ? '승' : isDraw ? '무' : '패'}
                     </span>
                     {role === 'admin' && (
-                      <button onClick={() => removeMatchRecord(m.id)} className="text-stone-200 hover:text-red-400 transition">
+                      <button onClick={() => removeMatchRecord(m.id)} className="text-gray-200 hover:text-red-400 transition">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -240,12 +240,12 @@ export default function MatchesPage() {
                 </div>
 
                 {/* Scoreboard */}
-                <div className="bg-stone-50 rounded-2xl px-6 py-4 flex items-center justify-between">
+                <div className="bg-gray-50 rounded-2xl px-6 py-4 flex items-center justify-between">
                   <div className="flex-1 text-center">
                     <p className="text-xs text-blue-500 font-bold mb-1 truncate">{m.teamAName}</p>
                     <p className="text-5xl font-black text-gray-900 leading-none">{m.scoreA}</p>
                   </div>
-                  <div className="text-stone-300 font-black text-2xl px-2">:</div>
+                  <div className="text-gray-300 font-black text-2xl px-2">:</div>
                   <div className="flex-1 text-center">
                     <p className="text-xs text-red-400 font-bold mb-1 truncate">{m.teamBName}</p>
                     <p className="text-5xl font-black text-gray-900 leading-none">{m.scoreB}</p>
@@ -255,14 +255,14 @@ export default function MatchesPage() {
                 {participants.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-3">
                     {participants.map((p) => (
-                      <span key={p.id} className="text-[11px] bg-stone-100 text-stone-500 font-semibold px-2 py-0.5 rounded-lg">
+                      <span key={p.id} className="text-[11px] bg-gray-100 text-gray-500 font-semibold px-2 py-0.5 rounded-lg">
                         {p.name}
                       </span>
                     ))}
                   </div>
                 )}
 
-                {m.notes && <p className="text-xs text-stone-400 mt-2 italic">{m.notes}</p>}
+                {m.notes && <p className="text-xs text-gray-400 mt-2 italic">{m.notes}</p>}
 
                 {/* MVP closed */}
                 {mvp && !m.mvpOpen && (
@@ -282,7 +282,7 @@ export default function MatchesPage() {
 
                 {/* MVP voting */}
                 {m.mvpOpen && (
-                  <div className="mt-3 pt-3 border-t border-stone-100">
+                  <div className="mt-3 pt-3 border-t border-gray-200">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-1.5">
                         <div className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse" />
@@ -290,13 +290,13 @@ export default function MatchesPage() {
                       </div>
                       {role === 'admin' && (
                         <button onClick={() => closeMvpVoting(m.id)}
-                          className="text-xs text-stone-400 hover:text-gray-600 border border-stone-200 px-2.5 py-1 rounded-lg transition">
+                          className="text-xs text-gray-400 hover:text-gray-600 border border-gray-200 px-2.5 py-1 rounded-lg transition">
                           마감
                         </button>
                       )}
                     </div>
                     {m.mvpVotes.length > 0 && (
-                      <div className="bg-stone-50 rounded-xl p-3 mb-3 space-y-1.5">
+                      <div className="bg-gray-50 rounded-xl p-3 mb-3 space-y-1.5">
                         {(() => {
                           const counts = new Map<string, { name: string; count: number }>();
                           m.mvpVotes.forEach((v) => {
@@ -305,8 +305,8 @@ export default function MatchesPage() {
                           });
                           return [...counts.entries()].sort((a, b) => b[1].count - a[1].count).map(([id, { name, count }], idx) => (
                             <div key={id} className="flex justify-between text-xs">
-                              <span className={`font-semibold ${idx === 0 ? 'text-amber-600' : 'text-stone-500'}`}>{name}</span>
-                              <span className={`font-bold ${idx === 0 ? 'text-amber-500' : 'text-stone-400'}`}>{count}표</span>
+                              <span className={`font-semibold ${idx === 0 ? 'text-amber-600' : 'text-gray-500'}`}>{name}</span>
+                              <span className={`font-bold ${idx === 0 ? 'text-amber-500' : 'text-gray-400'}`}>{count}표</span>
                             </div>
                           ));
                         })()}
@@ -316,7 +316,7 @@ export default function MatchesPage() {
                       <div className="grid grid-cols-3 gap-1.5">
                         {participants.filter(p => p.id !== myVoterId).map((p) => (
                           <button key={p.id} onClick={() => voteForMvp(m.id, myVoterId, p.id, p.name)}
-                            className="text-xs py-2.5 bg-stone-100 hover:bg-amber-50 hover:text-amber-700 rounded-xl text-gray-600 font-semibold transition">
+                            className="text-xs py-2.5 bg-gray-100 hover:bg-amber-50 hover:text-amber-700 rounded-xl text-gray-600 font-semibold transition">
                             {p.name}
                           </button>
                         ))}
@@ -331,7 +331,7 @@ export default function MatchesPage() {
                       </div>
                     )}
                     {!myVoterId && (
-                      <p className="text-xs text-stone-400 text-center">위에서 내 선수를 먼저 선택하세요</p>
+                      <p className="text-xs text-gray-400 text-center">위에서 내 선수를 먼저 선택하세요</p>
                     )}
                   </div>
                 )}

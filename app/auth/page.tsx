@@ -12,7 +12,7 @@ const MODE_CONFIG: Record<Mode, { label: string; desc: string }> = {
   create: { label: '팀 만들기', desc: '새 팀을 만들고 팀장이 되기' },
 };
 
-const INPUT = "w-full bg-stone-50 border-0 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400";
+const INPUT = "w-full bg-gray-50 border-0 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-gray-400";
 
 export default function AuthPage() {
   const router = useRouter();

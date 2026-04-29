@@ -115,7 +115,7 @@ export default function StatsPage() {
                         <span className="text-[10px] text-gray-300">({rate}%)</span>
                       </div>
                     </div>
-                    <div className="h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                       <div className="h-full bg-green-500 rounded-full" style={{ width: `${pct}%` }} />
                     </div>
                   </div>
@@ -175,7 +175,7 @@ export default function StatsPage() {
               return (
                 <div key={key} className="flex items-center gap-3">
                   <span className="text-xs w-14 text-gray-500 font-medium">{label}</span>
-                  <div className="flex-1 bg-stone-100 rounded-full h-2 overflow-hidden">
+                  <div className="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
                     <div className={`h-full rounded-full ${bar} transition-all`} style={{ width: `${pct}%` }} />
                   </div>
                   <span className="text-xs text-gray-500 w-8 text-right font-bold">{count}명</span>
@@ -188,7 +188,7 @@ export default function StatsPage() {
               return (
                 <div className="flex items-center gap-3">
                   <span className="text-xs w-14 text-gray-400 font-medium">루키</span>
-                  <div className="flex-1 bg-stone-100 rounded-full h-2 overflow-hidden">
+                  <div className="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
                     <div className="h-full rounded-full bg-gray-300 transition-all" style={{ width: `${pct}%` }} />
                   </div>
                   <span className="text-xs text-gray-400 w-8 text-right font-bold">{count}명</span>
@@ -211,7 +211,7 @@ export default function StatsPage() {
                 p.score <= 6 ? 'bg-indigo-400' :
                 p.score <= 9 ? 'bg-purple-400' : 'bg-amber-400';
               return (
-                <div key={p.id} className="flex items-center gap-3 py-2.5 border-b border-stone-50 last:border-0">
+                <div key={p.id} className="flex items-center gap-3 py-2.5 border-b border-gray-100 last:border-0">
                   <span className="text-sm w-6 text-center flex-shrink-0">
                     {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (
                       <span className="text-xs text-gray-300 font-bold">{i + 1}</span>
@@ -225,7 +225,7 @@ export default function StatsPage() {
                     <TierBadge tier={p.tier} status={p.status} />
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <div className="w-16 bg-stone-100 rounded-full h-1.5">
+                    <div className="w-16 bg-gray-100 rounded-full h-1.5">
                       <div className={`h-full rounded-full ${barColor}`} style={{ width: `${p.score * 10}%` }} />
                     </div>
                     <span className="text-sm font-black text-gray-700 w-4 text-right">{p.score}</span>

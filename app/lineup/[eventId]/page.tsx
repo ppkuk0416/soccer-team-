@@ -58,7 +58,7 @@ export default function LineupPage({ params }: { params: Promise<{ eventId: stri
   const availablePlayers = players.filter((p) => !assignedIds.includes(p.id));
 
   if (!event) return (
-    <div className="text-center py-20 text-stone-400 text-sm">일정을 찾을 수 없습니다</div>
+    <div className="text-center py-20 text-gray-400 text-sm">일정을 찾을 수 없습니다</div>
   );
 
   return (
@@ -66,14 +66,14 @@ export default function LineupPage({ params }: { params: Promise<{ eventId: stri
       {/* Header */}
       <div className="flex items-center gap-3">
         <button onClick={() => router.back()}
-          className="w-9 h-9 flex items-center justify-center rounded-xl bg-white shadow-sm text-stone-400 hover:text-stone-600 transition flex-shrink-0">
+          className="w-9 h-9 flex items-center justify-center rounded-xl bg-white shadow-sm text-gray-400 hover:text-gray-600 transition flex-shrink-0">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
         <div className="flex-1 min-w-0">
           <h1 className="text-lg font-black text-gray-900">라인업 설정</h1>
-          <p className="text-xs text-stone-400 truncate">
+          <p className="text-xs text-gray-400 truncate">
             {event.title} · {new Date(event.date).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })}
           </p>
         </div>
@@ -86,14 +86,14 @@ export default function LineupPage({ params }: { params: Promise<{ eventId: stri
 
       {/* Formation selector */}
       <div className="bg-white rounded-2xl shadow-sm p-4">
-        <p className="text-xs font-bold text-stone-400 uppercase tracking-wide mb-3">포메이션</p>
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">포메이션</p>
         <div className="flex flex-wrap gap-2">
           {FORMATIONS.map((f) => (
             <button key={f.id} onClick={() => { setFormationId(f.id); setSlots([]); }}
               className={`text-sm px-3.5 py-2 rounded-xl font-bold transition-all ${
                 formationId === f.id
-                  ? 'bg-stone-900 text-white shadow-sm'
-                  : 'bg-stone-50 text-stone-500 hover:bg-stone-100'
+                  ? 'bg-[#1C1C1E] text-white shadow-sm'
+                  : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
               }`}>
               {f.label}
             </button>
@@ -123,7 +123,7 @@ export default function LineupPage({ params }: { params: Promise<{ eventId: stri
                       {slot.playerId ? (
                         <button onClick={() => role === 'admin' && clearSlot(slot.position, slot.index)}
                           className="flex flex-col items-center gap-1 min-w-[52px] group">
-                          <div className="w-11 h-11 rounded-full bg-white shadow-md flex items-center justify-center text-sm font-black text-stone-700 group-active:scale-95 transition-transform">
+                          <div className="w-11 h-11 rounded-full bg-white shadow-md flex items-center justify-center text-sm font-black text-gray-700 group-active:scale-95 transition-transform">
                             {slot.playerName!.charAt(0)}
                           </div>
                           <span className="text-[10px] text-white font-semibold max-w-[56px] truncate leading-tight">
@@ -158,8 +158,8 @@ export default function LineupPage({ params }: { params: Promise<{ eventId: stri
 
       {/* Assigned count + attendance */}
       <div className="flex items-center justify-between px-1">
-        <span className="text-xs text-stone-400">
-          배정 <span className="font-bold text-stone-700">{assignedIds.length}</span>/{allSlots.length}명
+        <span className="text-xs text-gray-400">
+          배정 <span className="font-bold text-gray-700">{assignedIds.length}</span>/{allSlots.length}명
         </span>
         {attendingIds.length > 0 && (
           <span className="text-xs text-green-600 font-semibold">오늘 참석 {attendingIds.length}명</span>
@@ -170,12 +170,12 @@ export default function LineupPage({ params }: { params: Promise<{ eventId: stri
       {role === 'admin' && (
         <textarea value={notes} onChange={(e) => setNotes(e.target.value)}
           placeholder="전술 메모 (선택사항)"
-          className="w-full bg-stone-50 border-0 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400 resize-none h-16 placeholder:text-stone-400" />
+          className="w-full bg-gray-50 border-0 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400 resize-none h-16 placeholder:text-gray-400" />
       )}
 
       {role !== 'admin' && notes && (
-        <div className="bg-white rounded-2xl shadow-sm px-4 py-3 text-sm text-stone-600 flex gap-2">
-          <svg className="w-4 h-4 text-stone-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={1.75} viewBox="0 0 24 24">
+        <div className="bg-white rounded-2xl shadow-sm px-4 py-3 text-sm text-gray-600 flex gap-2">
+          <svg className="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={1.75} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
           </svg>
           <span>{notes}</span>
@@ -186,7 +186,7 @@ export default function LineupPage({ params }: { params: Promise<{ eventId: stri
       {role === 'admin' && (
         <div className="flex gap-2">
           <button onClick={handleSave}
-            className="flex-1 bg-stone-100 text-stone-700 font-bold py-3.5 rounded-xl hover:bg-stone-200 transition text-sm">
+            className="flex-1 bg-gray-100 text-gray-700 font-bold py-3.5 rounded-xl hover:bg-gray-200 transition text-sm">
             임시 저장
           </button>
           <button onClick={handlePublish}
@@ -200,12 +200,12 @@ export default function LineupPage({ params }: { params: Promise<{ eventId: stri
       {pickingSlot && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end" onClick={() => setPickingSlot(null)}>
           <div className="bg-white w-full rounded-t-2xl max-h-[65vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
-            <div className="flex justify-between items-center px-5 py-4 border-b border-stone-100">
+            <div className="flex justify-between items-center px-5 py-4 border-b border-gray-200">
               <h3 className="font-bold text-gray-900">
                 {POSITION_LABELS[pickingSlot.pos]} 선수 선택
               </h3>
               <button onClick={() => setPickingSlot(null)}
-                className="w-7 h-7 flex items-center justify-center rounded-lg bg-stone-100 text-stone-400 hover:bg-stone-200 transition">
+                className="w-7 h-7 flex items-center justify-center rounded-lg bg-gray-100 text-gray-400 hover:bg-gray-200 transition">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -213,7 +213,7 @@ export default function LineupPage({ params }: { params: Promise<{ eventId: stri
             </div>
             <div className="overflow-y-auto flex-1 p-3">
               {availablePlayers.length === 0 ? (
-                <p className="text-sm text-stone-400 text-center py-10">배정 가능한 선수가 없습니다</p>
+                <p className="text-sm text-gray-400 text-center py-10">배정 가능한 선수가 없습니다</p>
               ) : (
                 <div className="space-y-1.5">
                   {availablePlayers.map((p) => {
@@ -221,7 +221,7 @@ export default function LineupPage({ params }: { params: Promise<{ eventId: stri
                     const isAttending = attendingIds.includes(p.id);
                     return (
                       <button key={p.id} onClick={() => assignPlayer(p.id, p.name)}
-                        className="w-full flex items-center justify-between px-3.5 py-3 rounded-xl bg-stone-50 hover:bg-green-50 active:scale-[0.99] transition-all">
+                        className="w-full flex items-center justify-between px-3.5 py-3 rounded-xl bg-gray-50 hover:bg-green-50 active:scale-[0.99] transition-all">
                         <div className="flex items-center gap-3">
                           <div className={`w-9 h-9 rounded-xl ${avatarCls} flex items-center justify-center text-sm font-black`}>
                             {p.name.charAt(0)}
