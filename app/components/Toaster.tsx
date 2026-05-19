@@ -1,29 +1,17 @@
 'use client';
-import { useEffect, useState } from 'react';
 import { useSupabaseStore } from '../store/useSupabaseStore';
 
 export function Toaster() {
   const { error, success, clearMessages } = useSupabaseStore();
-  const [visible, setVisible] = useState(false);
-
   const message = error || success;
   const isError = !!error;
-
-  useEffect(() => {
-    if (message) {
-      setVisible(true);
-    } else {
-      setVisible(false);
-    }
-  }, [message]);
 
   if (!message) return null;
 
   return (
     <div
-      className={`fixed top-16 left-1/2 -translate-x-1/2 z-50 max-w-sm w-[calc(100%-2rem)] transition-all duration-300 ${
-        visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
-      }`}
+      key={message}
+      className="fixed top-16 left-1/2 -translate-x-1/2 z-50 max-w-sm w-[calc(100%-2rem)] animate-toast-in"
     >
       <div className={`flex items-center gap-3 px-4 py-3 rounded-2xl shadow-[0_8px_24px_rgba(0,0,0,0.16)] ${
         isError

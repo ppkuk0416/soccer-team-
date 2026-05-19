@@ -25,16 +25,28 @@ export default function ChallengePage() {
   const [sent, setSent] = useState(false);
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const trimmedQuery = query.trim();
+  const shouldSearch = trimmedQuery.length >= 2;
+  const filteredResults = shouldSearch
+    ? results
+    : [];
+
   useEffect(() => {
-    if (!query.trim() || query.trim().length < 2) { setResults([]); return; }
+    if (!shouldSearch) return;
+    let isCurrent = true;
     if (debounce.current) clearTimeout(debounce.current);
     debounce.current = setTimeout(async () => {
       setSearching(true);
-      const data = await searchTeams(query.trim());
+      const data = await searchTeams(trimmedQuery);
+      if (!isCurrent) return;
       setResults(data.filter((t) => t.id !== teamId));
       setSearching(false);
     }, 400);
-  }, [query, teamId, searchTeams]);
+    return () => {
+      isCurrent = false;
+      if (debounce.current) clearTimeout(debounce.current);
+    };
+  }, [shouldSearch, trimmedQuery, teamId, searchTeams]);
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
@@ -74,9 +86,9 @@ export default function ChallengePage() {
 
         {searching && <p className="text-xs text-gray-400 text-center py-2">검색 중...</p>}
 
-        {!searching && results.length > 0 && !selected && (
+        {!searching && filteredResults.length > 0 && !selected && (
           <div className="space-y-1.5">
-            {results.map((team) => (
+            {filteredResults.map((team) => (
               <button key={team.id} onClick={() => { setSelected(team); setResults([]); }}
                 className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl border border-gray-100 hover:border-green-300 hover:bg-green-50 transition text-left">
                 <div>
@@ -89,7 +101,7 @@ export default function ChallengePage() {
           </div>
         )}
 
-        {!searching && query.trim().length >= 2 && results.length === 0 && !selected && (
+        {!searching && shouldSearch && filteredResults.length === 0 && !selected && (
           <p className="text-xs text-gray-400 text-center py-2">검색 결과가 없습니다</p>
         )}
       </div>
@@ -161,7 +173,7 @@ export default function ChallengePage() {
                   <p className="text-xs text-gray-500 mb-1">📅 {new Date(c.proposedDate).toLocaleString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                 )}
                 {c.location && <p className="text-xs text-gray-500 mb-1">📍 {c.location}</p>}
-                {c.message && <p className="text-xs text-gray-600 italic mb-2">"{c.message}"</p>}
+                {c.message && <p className="text-xs text-gray-600 italic mb-2">&quot;{c.message}&quot;</p>}
                 <div className="flex gap-2 mt-3">
                   <button onClick={() => respondChallenge(c.id, 'accepted')}
                     className="flex-1 text-xs font-semibold bg-green-600 hover:bg-green-700 text-white py-2 rounded-xl transition">
@@ -197,7 +209,7 @@ export default function ChallengePage() {
                     {STATUS_LABEL[c.status]}
                   </span>
                 </div>
-                {c.message && <p className="text-xs text-gray-400 italic mt-1">"{c.message}"</p>}
+                {c.message && <p className="text-xs text-gray-400 italic mt-1">&quot;{c.message}&quot;</p>}
               </div>
             ))}
           </div>

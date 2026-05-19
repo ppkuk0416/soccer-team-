@@ -115,7 +115,7 @@ export default function PlayerProfileScreen() {
               <Text style={styles.tierLabel}>{TIER_LABELS[player.tier]}</Text>
             </View>
             <View style={styles.barBg}>
-              <View style={[styles.barFill, { width: `${player.score * 10}%` as any }]} />
+              <View style={[styles.barFill, { width: `${player.score * 10}%` as `${number}%` }]} />
             </View>
             <View style={styles.barLabels}>
               <Text style={styles.barLabelText}>1</Text>
