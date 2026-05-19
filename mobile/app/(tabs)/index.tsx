@@ -118,7 +118,7 @@ export default function TeamScreen() {
                     <View key={label} style={styles.tierRow}>
                       <Text style={styles.tierLabel}>{label}</Text>
                       <View style={styles.barBg}>
-                        <View style={[styles.barFill, { width: `${pct * 100}%` as any, backgroundColor: color }]} />
+                        <View style={[styles.barFill, { width: `${pct * 100}%` as `${number}%`, backgroundColor: color }]} />
                       </View>
                       <Text style={styles.tierCount}>{count}명</Text>
                     </View>
